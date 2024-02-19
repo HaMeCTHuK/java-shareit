@@ -1,9 +1,8 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.Email;
@@ -16,11 +15,11 @@ import javax.validation.constraints.NotNull;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class User {
 
     private Long id;  //уникальный идентификатор пользователя;
+    @NotNull
     private String name;  //имя или логин пользователя;
     @Email
     @NotNull

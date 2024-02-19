@@ -1,11 +1,10 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
-import lombok.Data;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.time.LocalDate;
 
@@ -13,17 +12,17 @@ import java.time.LocalDate;
  * TODO Sprint add-bookings.
  */
 
-@Data
-@SuperBuilder
+@Getter
+@Setter
+@Builder
 @EqualsAndHashCode(of = {"id"})
-@NoArgsConstructor
 public class Booking {
 
     private Long id;  //уникальный идентификатор бронирования;
     private LocalDate start;  //дата и время начала бронирования;
     private LocalDate end;  //дата и время конца бронирования;
     private Item item;  //вещь, которую пользователь бронирует;
-    private User booker;  //пользователь, который осуществляет бронирование;
+    private Object booker;  //пользователь, который осуществляет бронирование;
     private String status;  //статус бронирования.
 
 }

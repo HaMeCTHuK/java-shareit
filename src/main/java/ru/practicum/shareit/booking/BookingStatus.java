@@ -6,9 +6,8 @@ public enum BookingStatus {
     REJECTED,  //бронирование отклонено владельцем
     CANCELED;  //бронирование отменено создателем.
 
-
     public static BookingStatus fromString(String str) {
-        switch(str) {
+        switch (str) {
             case "WAITING":
                 return BookingStatus.WAITING;
             case "APPROVED":
@@ -21,4 +20,5 @@ public enum BookingStatus {
                 return null;
         }
     }
+
 }

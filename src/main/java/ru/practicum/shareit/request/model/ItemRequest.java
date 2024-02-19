@@ -1,10 +1,10 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class ItemRequest {
 
     private Long id;  //уникальный идентификатор запроса;

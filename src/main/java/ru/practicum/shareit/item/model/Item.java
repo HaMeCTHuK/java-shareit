@@ -2,9 +2,9 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 /**
  * TODO Sprint add-controllers.
@@ -13,7 +13,7 @@ import ru.practicum.shareit.request.ItemRequest;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Item {
     private Long id;  //уникальный идентификатор вещи;
     private String name;  //краткое название;
