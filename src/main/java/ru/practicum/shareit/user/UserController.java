@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * TODO Sprint add-controllers.
@@ -21,45 +23,56 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
-    public User createUser(@RequestBody @Valid User user) {
+    public UserDto createUser(@RequestBody @Valid UserDto userDto) {
+        User user = userMapper.toUser(userDto);
         validateUser(user);
         log.info("Пытаемся добавить пользователя: {}", user);
-        return userService.createUser(user);
+        UserDto recivedUserDto = userMapper.toUserDto(userService.createUser(user));
+        return recivedUserDto;
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@PathVariable Long userId,@RequestBody User user) {
-        user.setId(userId);
+    public UserDto updateUser(@PathVariable Long userId,@RequestBody UserDto userDto) {
+        userDto.setId(userId);
+        User user = userMapper.toUser(userDto);
 
-        User existingUser = userService.getUser(userId);
-        if (existingUser == null) {
+       // User existingUser = userService.getUser(userId);
+        if (user == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }
 
-        for (User addedUser : getAllUsers()) {
+        for (UserDto addedUser : getAllUsers()) {
             if (addedUser.getEmail().equals(user.getEmail()) && !addedUser.getId().equals(userId)) {
                 throw new DataAlreadyExistException("Пользователь уже сужествует");
             }
         }
 
         log.info("Пытаемся обновить пользователя : {}", user);
-        return userService.updateUser(user);
+        UserDto recivedUserDto = userMapper.toUserDto(user);
+        return recivedUserDto;
     }
 
     @GetMapping("/{id}")
-    public User getUser(@RequestBody @PathVariable Long id) {
+    public UserDto getUser(@RequestBody @PathVariable Long id) {
         log.info("Получаем объект по id: {}", id);
-        return userService.getUser(id);
+        UserDto userDto = userMapper.toUserDto(userService.getUser(id));
+        return userDto;
     }
 
     @GetMapping
     @ResponseBody
-    public List<User> getAllUsers() {
-        List<User> allUsers = userService.getAllUsers();
+    public List<UserDto> getAllUsers() {
+        List<User> allUser = userService.getAllUsers();
+
+        List<UserDto> allUsers = allUser.stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
+
         log.info("Текущее количество пользователей: {}", allUsers.size());
-        return  allUsers;
+        return allUsers;
     }
 
     @DeleteMapping("/{userId}")
@@ -76,7 +89,7 @@ public class UserController {
             throw new ValidationException("Не корректные данные объекта");
         }
 
-        for (User addedUser : getAllUsers()) {
+        for (UserDto addedUser : getAllUsers()) {
             if (addedUser.getEmail().equals(user.getEmail())) {
                 throw new DataAlreadyExistException("Пользователь уже сужествует");
             }
