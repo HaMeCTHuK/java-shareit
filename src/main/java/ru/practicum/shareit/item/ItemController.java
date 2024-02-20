@@ -3,14 +3,10 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.DataAlreadyExistException;
-import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 
@@ -26,33 +22,32 @@ public class ItemController {
 
     @Autowired
     private final ItemService itemService;
-    @Autowired
     private final UserService userService;
-    private Long generateId = 0L;
 
     @PostMapping
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        userService
+        UserDto userDto = userService.getUser(userId);
         log.info("Пытаемся добавить item: {}", itemDto);
-        return itemService.createItem(itemDto);
+        return itemService.createItem(itemDto, userDto);
     }
 
-    @PatchMapping("/{itemId}")
-    public ItemDto updateUser(@PathVariable Long itemId,@RequestBody ItemDto itemDto) {
-        user.setId(itemId);
+/*    @PatchMapping("/{itemId}")
+    public ItemDto updateItem(@PathVariable Long itemId,@RequestBody ItemDto itemDto) {
 
-        User existingUser = itemService.getItem(userId);
-        if (existingUser == null) {
-            throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
+        Item existingItem = itemService.getItem(itemId);
+        if (itemDto == null) {
+            throw new DataNotFoundException("Item с ID " + itemId + " не найдена");
         }
 
         for (Item addedItem : getAllItems()) {
-            if (addedItem.getEmail().equals(user.getEmail()) && !addedItem.getId().equals(userId)) {
-                throw new DataAlreadyExistException("Пользователь уже сужествует");
+            if (addedItem.getOwner().equals(itemDto.getOwner()) && !addedItem.getId().equals(itemId)) {
+                throw new DataAlreadyExistException("Item уже сужествует");
             }
         }
 
-        log.info("Пытаемся обновить пользователя : {}", user);
-        return itemService.updateItem(user);
-    }
+        itemDto.setId(itemId);
+
+        log.info("Пытаемся обновить Item : {}", itemDto);
+        return itemService.updateItem(itemDto);
+    }*/
 }

@@ -19,7 +19,6 @@ public class ItemDto {
     private String name;  //краткое название;
     private String description;  //развёрнутое описание;
     private boolean available;  //статус о том, доступна или нет вещь для аренды;
-    @NotNull
     private User owner;  //владелец вещи;
     private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
     // поле будет храниться ссылка на соответствующий запрос.
