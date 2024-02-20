@@ -1,19 +1,27 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    protected UserRepository userRepository;
+    @Autowired
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private Long generatedId = 0L;
 
     @Override
     public User createUser(User user) {
-        user.setId(++generatedId);
+
+
         userRepository.save(user);
         return user;
     }

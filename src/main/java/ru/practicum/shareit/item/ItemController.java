@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -8,7 +9,10 @@ import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
+
+import javax.validation.Valid;
 
 /**
  * TODO Sprint add-controllers.
@@ -17,14 +21,18 @@ import ru.practicum.shareit.user.model.User;
 @Slf4j
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
-  /*  @Autowired
-    private ItemService itemService;
+    @Autowired
+    private final ItemService itemService;
+    @Autowired
+    private final UserService userService;
+    private Long generateId = 0L;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Validated({Create.class}) @RequestBody ItemDto itemDto) {
-        //validateUser(user);
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
+        userService
         log.info("Пытаемся добавить item: {}", itemDto);
         return itemService.createItem(itemDto);
     }
@@ -46,5 +54,5 @@ public class ItemController {
 
         log.info("Пытаемся обновить пользователя : {}", user);
         return itemService.updateItem(user);
-    }*/
+    }
 }

@@ -1,7 +1,11 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+@Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
 /*    final ItemRepository itemRepository;

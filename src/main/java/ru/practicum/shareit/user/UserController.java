@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
@@ -24,9 +25,11 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private Long generatedId = 0L;
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
+        userDto.setId(++generatedId);
         User user = userMapper.toUser(userDto);
         validateUser(user);
         log.info("Пытаемся добавить пользователя: {}", user);
@@ -39,7 +42,6 @@ public class UserController {
         userDto.setId(userId);
         User user = userMapper.toUser(userDto);
 
-       // User existingUser = userService.getUser(userId);
         if (user == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }
@@ -51,6 +53,7 @@ public class UserController {
         }
 
         log.info("Пытаемся обновить пользователя : {}", user);
+        user = userService.updateUser(user);
         UserDto recivedUserDto = userMapper.toUserDto(user);
         return recivedUserDto;
     }

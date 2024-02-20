@@ -4,15 +4,23 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
+
+import javax.validation.constraints.NotNull;
 
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
 public class ItemDto {
-    private Long id;
-    private String name;
-    private String description;
-    private boolean available;
-    private Long requestId;
+    private Long id;  //уникальный идентификатор вещи;
+    @NotNull
+    private String name;  //краткое название;
+    private String description;  //развёрнутое описание;
+    private boolean available;  //статус о том, доступна или нет вещь для аренды;
+    @NotNull
+    private User owner;  //владелец вещи;
+    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
+    // поле будет храниться ссылка на соответствующий запрос.
 }
