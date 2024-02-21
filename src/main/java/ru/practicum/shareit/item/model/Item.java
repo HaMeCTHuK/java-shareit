@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -19,8 +20,9 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class Item {
     private Long id;  //уникальный идентификатор вещи;
-    @NotNull
+    @NotEmpty
     private String name;  //краткое название;
+    @NotEmpty
     private String description;  //развёрнутое описание;
     private boolean available;  //статус о том, доступна или нет вещь для аренды;
     private User owner;  //владелец вещи;

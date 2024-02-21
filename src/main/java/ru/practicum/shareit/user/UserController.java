@@ -22,7 +22,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
     private Long generatedId = 0L;
 
     @PostMapping
@@ -40,7 +39,7 @@ public class UserController {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }
 
-        for (UserDto addedUser : getAllUsers()) {
+        for (UserDto addedUser : userService.getAllUsers()) {
             if (addedUser.getEmail().equals(userDto.getEmail()) && !addedUser.getId().equals(userId)) {
                 throw new DataAlreadyExistException("Пользователь уже сужествует");
             }
@@ -67,7 +66,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUserById(@PathVariable Long userId) {
-        if (getUser(userId) == null) {
+        if (userService.getUser(userId) == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }
         log.info("Удаляем пользователя по ID: " + userId);
@@ -79,7 +78,7 @@ public class UserController {
             throw new ValidationException("Не корректные данные объекта");
         }
 
-        for (UserDto addedUser : getAllUsers()) {
+        for (UserDto addedUser : userService.getAllUsers()) {
             if (addedUser.getEmail().equals(userDto.getEmail())) {
                 throw new DataAlreadyExistException("Пользователь уже сужествует");
             }
