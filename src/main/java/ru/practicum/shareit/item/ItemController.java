@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,8 +31,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        if (!itemDto.isAvailable()) {
-            throw new ValidationException("Available == false");
+        if (itemDto.getAvailable() == null || !itemDto.getAvailable()) {
+            throw new ValidationException("Available == false || null");
         }
         UserDto userDto = userService.getUser(userId);
         itemDto.setOwner(userDto);
@@ -63,15 +64,6 @@ public class ItemController {
                 throw new DataAlreadyExistException("Item уже существует");
             }
         }
-/*        for (ItemDto addedItemDto : itemService.getAllItems()) {
-            if (addedItemDto.getId().equals(itemDto.getId())) {
-                throw new DataAlreadyExistException("Данный item c ID " + itemDto.getId() + "уже существует");
-            }
-
-            if (addedItemDto.getOwner().getEmail().equals(userDto.getEmail()) && addedItemDto.getOwner().getId().equals(userDto.getId())) {
-                throw new DataAlreadyExistException("Пользователь с ID " + userDto.getId() + "уже числится владельцем другой вещи");
-            }
-        }*/
 
         log.info("Пытаемся обновить Item : {}", itemDto);
         return itemService.updateItem(itemDto);
@@ -92,11 +84,29 @@ public class ItemController {
         itemService.deleteItem(itemId);
     }
 
-    @GetMapping
+//Временно убрал
+/*    @GetMapping
     @ResponseBody
     public List<ItemDto> getAllItems() {
         List<ItemDto> allItems = itemService.getAllItems();
         log.info("Текущее количество пользователей: {}", allItems.size());
         return allItems;
+    }*/
+
+    @GetMapping
+    @ResponseBody
+    public List<ItemDto> getAllItemsWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        List<ItemDto> allItemsWithUserId = itemService.getAllItemsWithUserId(userId);
+        log.info("Получаем items с пользователем ID: {}", userId);
+        return allItemsWithUserId;
+    }
+
+    @GetMapping("/search")
+    public List<ItemDto> searchItemsByText(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text) {
+        log.info("Вызван метод searchItemsByQuery - поиск items с text(description) " + text + " c userId " + userId);
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return itemService.searchItemsByText(text, userId);
     }
 }

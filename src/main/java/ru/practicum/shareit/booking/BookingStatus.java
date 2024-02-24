@@ -20,5 +20,4 @@ public enum BookingStatus {
                 return null;
         }
     }
-
 }
