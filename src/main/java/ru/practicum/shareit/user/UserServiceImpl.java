@@ -19,11 +19,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private Long generatedId = 0L;
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        userDto.setId(++generatedId);
+        userDto.setId(userRepository.getGenerateId());
         User user = userMapper.toUser(userDto);
         UserDto recivedUserDto = userMapper.toUserDto(userRepository.save(user));
         return recivedUserDto;

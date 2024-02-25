@@ -27,6 +27,7 @@ public class ItemController {
 
     @Autowired
     private final ItemService itemService;
+    @Autowired
     private final UserService userService;
 
     @PostMapping
@@ -84,15 +85,6 @@ public class ItemController {
         itemService.deleteItem(itemId);
     }
 
-//Временно убрал
-/*    @GetMapping
-    @ResponseBody
-    public List<ItemDto> getAllItems() {
-        List<ItemDto> allItems = itemService.getAllItems();
-        log.info("Текущее количество пользователей: {}", allItems.size());
-        return allItems;
-    }*/
-
     @GetMapping
     @ResponseBody
     public List<ItemDto> getAllItemsWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
@@ -104,9 +96,6 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchItemsByText(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text) {
         log.info("Вызван метод searchItemsByQuery - поиск items с text(description) " + text + " c userId " + userId);
-        if (text.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return itemService.searchItemsByText(text, userId);
+        return text.isEmpty() ? new ArrayList<>() : itemService.searchItemsByText(text, userId);
     }
 }

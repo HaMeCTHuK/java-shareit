@@ -6,6 +6,7 @@ import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -21,7 +22,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
-    private Long generatedId = 0L;
 
     @Override
     public ItemDto createItem(ItemDto itemDto) {
@@ -30,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
             throw new DataNotFoundException("Owner не найден");
         }
 
-        itemDto.setId(++generatedId);
+        itemDto.setId(itemRepository.getGenerateId());
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
         item = itemRepository.save(item);

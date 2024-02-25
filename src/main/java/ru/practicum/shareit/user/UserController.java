@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
@@ -20,12 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
+    @Autowired
     private final UserService userService;
-    private Long generatedId = 0L;
+
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
-        userDto.setId(++generatedId);
         validateUser(userDto);
         log.info("Пытаемся добавить пользователя: {}", userDto);
         return userService.createUser(userDto);

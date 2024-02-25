@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
@@ -10,7 +10,13 @@ import java.util.List;
 @Component
 public class ItemRepository {
 
+     private Long generatedId = 0L;
+
     private final HashMap<Long, Item> items = new HashMap<>();
+
+    public Long getGenerateId () {
+        return ++generatedId;
+    }
 
     public Item save(Item item) {
         items.put(item.getId(), item);
