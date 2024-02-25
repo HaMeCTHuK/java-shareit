@@ -1,5 +1,9 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.model;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDate;
@@ -7,7 +11,12 @@ import java.time.LocalDate;
 /**
  * TODO Sprint add-item-requests.
  */
-public class ItemRequestDto {
+
+@Data
+@SuperBuilder
+@EqualsAndHashCode(of = {"id"})
+@RequiredArgsConstructor
+public class ItemRequest {
 
     private Long id;  //уникальный идентификатор запроса;
     private String description;  //текст запроса, содержащий описание требуемой вещи;
