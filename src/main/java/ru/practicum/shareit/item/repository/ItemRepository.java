@@ -11,10 +11,9 @@ import java.util.List;
 public class ItemRepository {
 
      private Long generatedId = 0L;
+     private final HashMap<Long, Item> items = new HashMap<>();
 
-    private final HashMap<Long, Item> items = new HashMap<>();
-
-    public Long getGenerateId () {
+    public Long getGenerateId() {
         return ++generatedId;
     }
 

@@ -8,15 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 @Component
 public class UserRepository {
 
     private Long generatedId = 0L;
-
     private final HashMap<Long, User> users = new HashMap<>();
 
-    public Long getGenerateId () {
+    public Long getGenerateId() {
         return ++generatedId;
     }
 
