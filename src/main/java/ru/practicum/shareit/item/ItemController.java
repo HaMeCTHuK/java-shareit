@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,4 +110,10 @@ public class ItemController {
         }
         return itemService.searchItemsByText(text, userId);
     }
+
+/*    @PostMapping("/{itemId}/comment")
+    public CommentDto create(@Min(1L) @PathVariable Long itemId,
+                             @RequestHeader("X-Sharer-User-Id") Long userId, CommentCreateRequst request) {
+        return null
+    }*/
 }

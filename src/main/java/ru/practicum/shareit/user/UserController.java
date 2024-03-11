@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId,@RequestBody UserDto userDto) {
+    public UserDto updateUser(@Min(1L) @PathVariable Long userId, @RequestBody UserDto userDto) {
 
         if (userDto == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");

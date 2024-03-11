@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDate;
@@ -21,8 +22,8 @@ public class Booking {
     private Long id;  //уникальный идентификатор бронирования;
     private LocalDate start;  //дата и время начала бронирования;
     private LocalDate end;  //дата и время конца бронирования;
-    private Item item;  //вещь, которую пользователь бронирует;
-    private Object booker;  //пользователь, который осуществляет бронирование;
-    private String status;  //статус бронирования.
+    private Long itemId;  //вещь, которую пользователь бронирует;
+    private Long bookerId;  //пользователь, который осуществляет бронирование;
+    private BookingStatus status;  //статус бронирования.
 
 }
