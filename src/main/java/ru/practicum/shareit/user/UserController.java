@@ -2,11 +2,13 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -22,12 +24,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private Long generatedId = 0L;
+    private final UserMapper userMapper;
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
-        userDto.setId(++generatedId);
-        validateUser(userDto);
+        //userDto.setId(++generatedId);
+       // validateUser(userDto);
         log.info("Пытаемся добавить пользователя: {}", userDto);
         return userService.createUser(userDto);
     }
@@ -47,11 +49,11 @@ public class UserController {
 
         userDto.setId(userId);
         log.info("Пытаемся обновить пользователя : {}", userDto);
-        return userService.updateUser(userDto);
+        return userService.updateUser(userId, userMapper.toUser(userDto));
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@RequestBody @PathVariable Long id) {
+    public UserDto getUser(@RequestBody @PathVariable Long id) throws ChangeSetPersister.NotFoundException {
         log.info("Получаем объект по id: {}", id);
         return userService.getUser(id);
     }
@@ -65,7 +67,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@PathVariable Long userId) {
+    public void deleteUserById(@PathVariable Long userId) throws ChangeSetPersister.NotFoundException {
         if (userService.getUser(userId) == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }

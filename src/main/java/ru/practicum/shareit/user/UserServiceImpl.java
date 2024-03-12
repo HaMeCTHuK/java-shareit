@@ -2,9 +2,12 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -16,20 +19,35 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private Long generatedId = 0L;
 
-    @Override
+/*    @Override
     public UserDto createUser(UserDto userDto) {
         userDto.setId(++generatedId);
         User user = userMapper.toUser(userDto);
-        UserDto recivedUserDto = userMapper.toUserDto(userRepository.save(user));
-        return recivedUserDto;
-    }
+        UserEntity userEntity = userMapper.toEntity(user);
+
+        User createdUser = userMapper.toUserFromEntity(userRepository.save(userEntity));
+
+        return userMapper.toUserDto(createdUser);
+    }*/
 
     @Override
+    public UserDto createUser(UserDto userdto) {
+        try {
+            User user = userMapper.toUser(userdto);
+            User createdUser = userMapper.toUserFromEntity(userRepository.save(userMapper.toEntity(user)));
+            return userMapper.toUserDto(createdUser);
+        } catch (Exception exception) {
+            throw new ValidationException("тут надо придумать с исключением");
+        }
+    }
+
+
+
+
+/*    @Override
     public UserDto updateUser(UserDto userDto) {
         User user = userMapper.toUser(userDto);
 
@@ -47,9 +65,21 @@ public class UserServiceImpl implements UserService {
         UserDto recivedUserDto = userMapper.toUserDto(user);
 
         return recivedUserDto;
-    }
+    }*/
 
     @Override
+    public UserDto updateUser(Long id, User user) {
+        try {
+            UserEntity stored = userRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+            userMapper.updateEntity(user,stored);
+            User updatedUser = userMapper.toUserFromEntity(userRepository.save(stored));
+            return userMapper.toUserDto(updatedUser);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new DataNotFoundException("Не найдено");
+        }
+    }
+
+ /*   @Override
     public UserDto getUser(Long id) {
         User user = userRepository.get(id);
         if (user == null) {
@@ -57,11 +87,25 @@ public class UserServiceImpl implements UserService {
         }
         UserDto userDto = userMapper.toUserDto(user);
         return userDto;
+    }*/
+
+    @Override
+    public UserDto getUser(Long id) throws ChangeSetPersister.NotFoundException {
+        User recivedUser = userRepository.findById(id)
+                .map(userMapper::toUserFromEntity)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return userMapper.toUserDto(recivedUser);
     }
+
+/*    @Override
+    public void deleteUser(Long id) {
+        userRepository.delete(id);
+    }*/
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.delete(id);
+        UserEntity userEntity = userRepository.getReferenceById(id);
+        userRepository.delete(userEntity);
     }
 
     @Override

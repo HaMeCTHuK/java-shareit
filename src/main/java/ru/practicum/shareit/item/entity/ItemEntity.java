@@ -39,5 +39,4 @@ public class ItemEntity implements Serializable {
     @JoinColumn(name = "request_id", nullable = false)
     private ItemRequestEntity request;
 
-
 }
