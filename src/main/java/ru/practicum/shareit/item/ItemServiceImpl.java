@@ -5,16 +5,21 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.entity.BookingEntity;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -32,13 +37,14 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRepositoryMapper itemRepositoryMapper;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
-    private Long generatedId = 0L;
 
+/*
     @Override
     public ItemDto createItem(ItemDto itemDto) {
         User owner = userMapper.toUser(itemDto.getOwner());
@@ -53,18 +59,25 @@ public class ItemServiceImpl implements ItemService {
 
         return itemMapper.toItemDto(item);
     }
+*/
 
-/*    @Override
-    public Item createItem(Item item) throws ChangeSetPersister.NotFoundException {
-        item.setOwner(userService.getUser(item.getOwner().getId()));
+    @Override
+    public ItemDto createItem(ItemDto itemDto) throws ChangeSetPersister.NotFoundException {
+        UserDto userDto = userService.getUser(itemDto.getOwner().getId());
+        itemDto.setOwner(userMapper.toUser(userDto));
+        //User user = userMapper.toUser(userDto);
+        //itemDto.setOwner(userDto);
+        Item item = itemMapper.toItemWithId(itemDto, itemDto.getOwner().getId());
         try {
-            return itemMapper.toItem(itemRepository.save(itemMapper.toEntity(item)));
+
+            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(item));
+            return itemMapper.toItemDto(itemMapper.toItemFromEntity(savedItem));
         } catch (Exception exception) {
             throw new ValidationException("проблемсссссс");
         }
-    }*/
+    }
 
-    @Override
+/*    @Override
     public ItemDto updateItem(ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
         User user = userMapper.toUser(itemDto.getOwner());
@@ -86,28 +99,30 @@ public class ItemServiceImpl implements ItemService {
         ItemDto reciveItemDto = itemMapper.toItemDto(savedItem);
 
         return reciveItemDto;
-    }
-
-/*    @Override
-    public Item updateItem(Long itemId, Item item) {
-        validate(itemId, item);
-        try {
-            ItemEntity stored = itemRepository.findById(itemId)
-                    .orElseThrow(ChangeSetPersister.NotFoundException::new);
-            itemMapper.updateEntity(item, stored);
-            return itemMapper.toItem(itemRepository.save(stored));
-        } catch (ChangeSetPersister.NotFoundException e) {
-            throw new ValidationException("Езда не по плану");
-        }
     }*/
 
     @Override
+    public ItemDto updateItem(Long itemId, ItemDto itemDto) {
+        validate(itemId, itemDto);
+        try {
+            ItemEntity stored = itemRepository.findById(itemId)
+                    .orElseThrow(ChangeSetPersister.NotFoundException::new);
+            Item item = itemMapper.toItemWithoutId(itemDto,itemDto.getOwner().getId());
+            itemMapper.updateEntity(item, stored);
+            Item savedItem  = itemMapper.toItemFromEntity(itemRepository.save(stored));
+            return itemMapper.toItemDto(savedItem);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new ValidationException("Езда не по плану");
+        }
+    }
+
+    @Override
     public ItemDto getItem(Long id) {
-        Item item = itemRepository.get(id);
-        if (item == null) {
+        if (!itemRepository.existsById(id)) {
             throw new DataNotFoundException("Item не найден");
         }
-        ItemDto itemDto = itemMapper.toItemDto(item);
+        ItemEntity itemEntity = itemRepository.getReferenceById(id);
+        ItemDto itemDto = itemMapper.toItemDto(itemMapper.toItemFromEntity(itemEntity));
         return itemDto;
     }
 
@@ -137,22 +152,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long id) {
-        if (itemRepository.get(id) == null) {
-            throw new DataNotFoundException("Item не найден");
-        }
-        itemRepository.delete(id);
-    }
-
-/*    @Override
-    public void deleteItem(Long id) {
         ItemEntity itemEntity = itemRepository.getReferenceById(id);
         itemRepository.delete(itemEntity);
-    }*/
+    }
 
     @Override
     public List<ItemDto> getAllItems() {
-        List<Item> allItems = itemRepository.getAllItems();
+        List<ItemEntity> allItems = itemRepository.findAll();
         List<ItemDto> allItemsDto = allItems.stream()
+                .map(itemMapper::toItemFromEntity)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return allItemsDto;
@@ -185,9 +193,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemsWithUserId(Long userId) {
-        List<Item> allItems = itemRepository.getAllItems();
+        List<ItemEntity> allItems = itemRepository.findAll();
         List<ItemDto> userItemsDto = allItems.stream()
                 .filter(item -> item.getOwner() != null && item.getOwner().getId().equals(userId))
+                .map(itemMapper::toItemFromEntity)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return userItemsDto;
@@ -195,28 +204,46 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItemsByText(String text, Long userId) {
-        List<Item> allItems = itemRepository.getAllItems();
+        List<ItemEntity> allItems = itemRepository.findAll();
         List<ItemDto> foundItemsDto = allItems.stream()
                 .filter(item -> item.getAvailable()
                         && item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .map(itemMapper::toItemFromEntity)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return foundItemsDto;
     }
 
-/*    @Override
-    public List<Item> searchItemsByText(String text, Long userId) {
-        if (!StringUtils.hasText(text)) {
-            return Collections.emptyList();
-        }
-        return itemRepository.search(text).stream()
-                .map(itemMapper::toItem)
-                .collect(Collectors.toList());
-    }*/
-
     @Override
+    public Comment addComment(Comment comment) {
+        return null;
+    }
+
+  /*  @Override
     public Comment addComment(Comment comment) throws ChangeSetPersister.NotFoundException {
         ItemEntity itemEntity = itemRepository.findById(comment.getId())
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        UserEntity booker = userMapper.toEntity(userService.getUser(comment.getAuthorId()));
+
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings = bookingRepository.findAllByItemAndBooker(itemEntity, booker).stream()
+                .map(bookingMapper::toBooking)
+                .collect(Collectors.toList());
+        if (bookings.stream().noneMatch(b -> b.isFinished(now))) {
+            throw new ValidationException("ошибка валидации");
+        }
+
+        comment.setCreated(now);
+        try {
+            CommentEntity commentEntity = commentMapper.toEntity(comment);
+            commentEntity.setItem(itemEntity);
+            commentEntity.setAuthor(booker);
+            return commentMapper.toComment(commentRepository.save(commentEntity))
+        } catch (Exception e) {
+            throw new ValidationException("error");
+        }
+    }
+*/
+    private void validate(Long itemId, ItemDto itemDto) {
     }
 }

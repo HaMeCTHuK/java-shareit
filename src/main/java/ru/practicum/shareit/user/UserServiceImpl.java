@@ -36,8 +36,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userdto) {
         try {
-            User user = userMapper.toUser(userdto);
-            User createdUser = userMapper.toUserFromEntity(userRepository.save(userMapper.toEntity(user)));
+            User user = userMapper.createToUser(userdto);
+            User createdUser = userMapper.toUserFromEntity(userRepository.save(userMapper.createToEntity(user)));
             return userMapper.toUserDto(createdUser);
         } catch (Exception exception) {
             throw new ValidationException("тут надо придумать с исключением");
@@ -110,10 +110,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        List<User> allUsers = userRepository.getAllUsers();
-        List<UserDto> allUsersDto = allUsers.stream()
+        List<UserEntity> allUsers = userRepository.findAll();
+        List<UserDto> recivedUsersList = allUsers.stream()
+                .map(userMapper::toUserFromEntity)
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
-        return allUsersDto;
+        return recivedUsersList;
     }
 }

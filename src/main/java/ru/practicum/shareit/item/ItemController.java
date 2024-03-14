@@ -68,7 +68,7 @@ public class ItemController {
         }
 
         log.info("Пытаемся обновить Item : {}", itemDto);
-        return itemService.updateItem(itemDto);
+        return itemService.updateItem(itemId, itemDto);
     }
 
     @GetMapping("/{id}")

@@ -3,9 +3,12 @@ package ru.practicum.shareit.booking.entity;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.item.entity.ItemEntity;
+import ru.practicum.shareit.user.entity.UserEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Getter
@@ -23,18 +26,18 @@ public class BookingEntity implements Serializable {
     private Long id;  //уникальный идентификатор бронирования;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate start;  //дата и время начала бронирования;
+    private Timestamp start;  //дата и время начала бронирования;
 
     @Column(name = "end_time", nullable = false)
-    private LocalDate end;  //дата и время конца бронирования;
+    private Timestamp end;  //дата и время конца бронирования;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
-    private Long itemId;  //вещь, которую пользователь бронирует;
+    private ItemEntity item;  //вещь, которую пользователь бронирует;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private Long bookerId;  //пользователь, который осуществляет бронирование;
+    @JoinColumn(name = "booker_id", nullable = false)
+    private UserEntity booker;  //пользователь, который осуществляет бронирование;
 
     @Column(name = "status", nullable = false)
     private BookingStatus status;  //статус бронирования.

@@ -14,6 +14,14 @@ public interface UserMapper {
 
     UserDto toUserDto(User user);
 
+    @Mapping(target = "id", ignore = true)
+    User createToUser(UserDto userDto);
+
+    @Mapping(target = "id", ignore = true)
+    UserEntity createToEntity(User user);
+
+    @Mapping(target = "id", ignore = true)  /////
+    @Named("toUserEntity")
     UserEntity toEntity(User user);
 
     User toUserFromEntity(UserEntity userEntity);

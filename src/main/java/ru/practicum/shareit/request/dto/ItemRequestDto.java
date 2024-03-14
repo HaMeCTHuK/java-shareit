@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.

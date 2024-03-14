@@ -30,6 +30,6 @@ public class ItemRequestEntity implements Serializable {
     @JoinColumn(name = "requestor_id", nullable = false)
     private UserEntity requestor;
 
-/*    @Column(name = "created", nullable = false)
-    private Timestamp created;*/
+    @Column(name = "created", nullable = false)
+    private Timestamp created;
 }
