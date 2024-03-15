@@ -4,7 +4,6 @@ package ru.practicum.shareit.booking.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.user.entity.UserEntity;

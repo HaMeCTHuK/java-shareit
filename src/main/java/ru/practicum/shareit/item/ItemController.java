@@ -10,12 +10,12 @@ import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,23 +31,26 @@ public class ItemController {
 
     @Autowired
     private final ItemService itemService;
+    @Autowired
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) throws ChangeSetPersister.NotFoundException {
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
         if (itemDto.getAvailable() == null || !itemDto.getAvailable()) {
             throw new ValidationException("Available == false || null");
         }
+
         UserDto userDto = userService.getUser(userId);
-        itemDto.setOwner(userMapper.toUser(userDto));
+
+        itemDto.setOwner(userDto);
         log.info("Пытаемся добавить item: {}", itemDto);
         return itemService.createItem(itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) throws ChangeSetPersister.NotFoundException {
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
          UserDto userDto = userService.getUser(userId);
          ItemDto recivedItemDto = itemService.getItem(itemId);
 
@@ -64,7 +67,7 @@ public class ItemController {
         }
 
         itemDto.setId(itemId);
-        itemDto.setOwner(userMapper.toUser(userDto));
+        itemDto.setOwner(userDto);
         for (ItemDto addedItem : itemService.getAllItems()) {
             if (addedItem.getOwner().getEmail().equals(userDto.getEmail()) && !addedItem.getOwner().getId().equals(userDto.getId())) {
                 throw new DataAlreadyExistException("Item уже существует");

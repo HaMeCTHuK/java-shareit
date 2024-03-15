@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    ItemDto createItem(ItemDto itemDto) throws ChangeSetPersister.NotFoundException;
+    ItemDto createItem(ItemDto itemDto);
 
     ItemDto getItem(Long id);
 

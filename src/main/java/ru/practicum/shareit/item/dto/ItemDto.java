@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -22,10 +21,13 @@ import java.util.List;
 public class ItemDto {
 
     private Long id;  //уникальный идентификатор вещи;
+    @NotNull
     private String name;  //краткое название;
+    @NotNull
     private String description;  //развёрнутое описание;
+    @NotNull
     private Boolean available;  //статус о том, доступна или нет вещь для аренды;
-    private User owner;  //владелец вещи;
+    private UserDto owner;  //владелец вещи;
     private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
     // поле будет храниться ссылка на соответствующий запрос.
     private Item.ItemBooking lastBooking;
@@ -39,8 +41,8 @@ public class ItemDto {
     public static class ItemBooking {
 
         private Long id;  //уникальный идентификатор бронирования;
-        private LocalDate start;  //дата и время начала бронирования;
-        private LocalDate end;  //дата и время конца бронирования;
+        private LocalDateTime start;  //дата и время начала бронирования;
+        private LocalDateTime end;  //дата и время конца бронирования;
         private Long itemId;  //вещь, которую пользователь бронирует;
         private Long bookerId;  //пользователь, который осуществляет бронирование;
         private BookingStatus status;  //статус бронирования.

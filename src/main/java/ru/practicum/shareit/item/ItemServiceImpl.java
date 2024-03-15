@@ -3,33 +3,23 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import ru.practicum.shareit.booking.entity.BookingEntity;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.StorageException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,18 +52,17 @@ public class ItemServiceImpl implements ItemService {
 */
 
     @Override
-    public ItemDto createItem(ItemDto itemDto) throws ChangeSetPersister.NotFoundException {
-        UserDto userDto = userService.getUser(itemDto.getOwner().getId());
-        itemDto.setOwner(userMapper.toUser(userDto));
+    public ItemDto createItem(ItemDto itemDto) {
+        //UserDto userDto = userService.getUser(item.getOwner().getId());
+        //item.setOwner(userMapper.toUser(userDto));
         //User user = userMapper.toUser(userDto);
         //itemDto.setOwner(userDto);
-        Item item = itemMapper.toItemWithId(itemDto, itemDto.getOwner().getId());
+        Item createdItem = itemMapper.toItemWithId(itemDto, itemDto.getOwner().getId());
         try {
-
-            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(item));
+            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(createdItem));
             return itemMapper.toItemDto(itemRepositoryMapper.toItem(savedItem));
         } catch (Exception exception) {
-            throw new ValidationException("проблемсссссс");
+            throw new StorageException("Ошибка создания Item");
         }
     }
 

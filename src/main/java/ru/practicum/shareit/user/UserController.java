@@ -2,13 +2,13 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -28,10 +28,10 @@ public class UserController {
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
-        //userDto.setId(++generatedId);
-       // validateUser(userDto);
+        //validateUser(userDto);
         log.info("Пытаемся добавить пользователя: {}", userDto);
-        return userService.createUser(userDto);
+        User user = userMapper.toUser(userDto);
+        return userService.createUser(user);
     }
 
     @PatchMapping("/{userId}")
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@RequestBody @PathVariable Long id) throws ChangeSetPersister.NotFoundException {
+    public UserDto getUser(@RequestBody @PathVariable Long id) {
         log.info("Получаем объект по id: {}", id);
         return userService.getUser(id);
     }
@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@PathVariable Long userId) throws ChangeSetPersister.NotFoundException {
+    public void deleteUserById(@PathVariable Long userId) {
         if (userService.getUser(userId) == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
         }

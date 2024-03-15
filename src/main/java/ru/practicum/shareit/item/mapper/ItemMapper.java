@@ -3,17 +3,10 @@ package ru.practicum.shareit.item.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.entity.ItemEntity;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
-
-import java.security.Timestamp;
-import java.time.LocalDate;
+import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = UserMapper.class)
 public interface ItemMapper {

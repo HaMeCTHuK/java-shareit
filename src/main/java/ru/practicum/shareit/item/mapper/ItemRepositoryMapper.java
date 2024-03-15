@@ -4,7 +4,7 @@ import org.mapstruct.*;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
