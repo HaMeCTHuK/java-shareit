@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
         try {
 
             ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(item));
-            return itemMapper.toItemDto(itemMapper.toItemFromEntity(savedItem));
+            return itemMapper.toItemDto(itemRepositoryMapper.toItem(savedItem));
         } catch (Exception exception) {
             throw new ValidationException("проблемсссссс");
         }
@@ -108,8 +108,8 @@ public class ItemServiceImpl implements ItemService {
             ItemEntity stored = itemRepository.findById(itemId)
                     .orElseThrow(ChangeSetPersister.NotFoundException::new);
             Item item = itemMapper.toItemWithoutId(itemDto,itemDto.getOwner().getId());
-            itemMapper.updateEntity(item, stored);
-            Item savedItem  = itemMapper.toItemFromEntity(itemRepository.save(stored));
+            itemRepositoryMapper.updateEntity(item, stored);
+            Item savedItem  = itemRepositoryMapper.toItem(itemRepository.save(stored));
             return itemMapper.toItemDto(savedItem);
         } catch (ChangeSetPersister.NotFoundException e) {
             throw new ValidationException("Езда не по плану");
@@ -122,7 +122,7 @@ public class ItemServiceImpl implements ItemService {
             throw new DataNotFoundException("Item не найден");
         }
         ItemEntity itemEntity = itemRepository.getReferenceById(id);
-        ItemDto itemDto = itemMapper.toItemDto(itemMapper.toItemFromEntity(itemEntity));
+        ItemDto itemDto = itemMapper.toItemDto(itemRepositoryMapper.toItem(itemEntity));
         return itemDto;
     }
 
@@ -160,7 +160,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllItems() {
         List<ItemEntity> allItems = itemRepository.findAll();
         List<ItemDto> allItemsDto = allItems.stream()
-                .map(itemMapper::toItemFromEntity)
+                .map(itemRepositoryMapper::toItem)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return allItemsDto;
@@ -196,7 +196,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemEntity> allItems = itemRepository.findAll();
         List<ItemDto> userItemsDto = allItems.stream()
                 .filter(item -> item.getOwner() != null && item.getOwner().getId().equals(userId))
-                .map(itemMapper::toItemFromEntity)
+                .map(itemRepositoryMapper::toItem)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return userItemsDto;
@@ -208,7 +208,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> foundItemsDto = allItems.stream()
                 .filter(item -> item.getAvailable()
                         && item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                .map(itemMapper::toItemFromEntity)
+                .map(itemRepositoryMapper::toItem)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         return foundItemsDto;

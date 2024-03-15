@@ -24,6 +24,6 @@ public class ItemRequestDto {
     @NotEmpty
     private String description;  //текст запроса, содержащий описание требуемой вещи;
     private User requestor;  //пользователь, создавший запрос;
-    private LocalDate created;  //дата и время создания запроса.
+    private LocalDateTime created;  //дата и время создания запроса.
 
 }

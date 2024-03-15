@@ -17,9 +17,11 @@ public interface ItemRepositoryMapper {
     @Mapping(target = "nextBooking", ignore = true)
     Item toItem(ItemEntity itemEntity);
 
+    @Mapping(target = "request.created", ignore = true)
     ItemEntity toEntity(Item item);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "request.created", ignore = true)
     void updateEntity(Item item, @MappingTarget ItemEntity itemEntity);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toLocalDateTime")

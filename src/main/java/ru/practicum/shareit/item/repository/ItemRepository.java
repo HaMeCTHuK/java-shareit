@@ -12,9 +12,9 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
 
     List<ItemEntity> findAllByOwnerOrderById(UserEntity user);
 
-    boolean existsByIdAndOwner(Long id, UserEntity owner);
+    //boolean existsByIdAndOwner(Long id, UserEntity owner);
 
-    @Query("select ie form ItemEntity ie " +
+    @Query("select ie from ItemEntity ie " +
             "where ie.available = true " +
             "and (lower(ie.name) like lower(concat('%', :text, '%')) " +
             "or lower(ie.description) like lower(concat('%', :text, '%')))")

@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
-    @Query("select b from BookingEntity b where b.item.owner =: owner and b.start > :now order by b.start desc ")
+    @Query("select b from BookingEntity b where b.item.owner = :owner and b.start > :now order by b.start desc ")
     List<BookingEntity> findFutureByOwnerItems(@Param("owner")UserEntity owner, @Param("now")Timestamp start);
 
     @Query("select b from BookingEntity b where b.item.owner = :owner and b.status = :status order by b.start desc ")
@@ -29,6 +29,6 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
     List<BookingEntity> findAllByItemAndBooker(ItemEntity itemEntity, UserEntity booker);
 
-    boolean existByItemAndBookerAndStatus(ItemEntity itemEntity, UserEntity booker, BookingStatus status);
+    //boolean existByItemAndBookerAndStatus(ItemEntity itemEntity, UserEntity booker, BookingStatus status);
 
 }

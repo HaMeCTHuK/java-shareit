@@ -50,11 +50,11 @@ public interface ItemMapper {
     @Mapping(target = "author.id", source = "authorId")
     Comment toComment(CommentCreateRequest request,Long itemId, Long authorId);*/
 
-    ItemEntity ItemToEntity(Item item);
+    //ItemEntity ItemToEntity(Item item);
 
-    Item toItemFromEntity(ItemEntity itemEntity);
+    //Item toItemFromEntity(ItemEntity itemEntity);
 
-    @Mapping(target = "id", ignore = true)
-    void updateEntity(Item item, @MappingTarget ItemEntity itemEntity);
+/*    @Mapping(target = "id", ignore = true)
+    void updateEntity(Item item, @MappingTarget ItemEntity itemEntity);*/
 
 }

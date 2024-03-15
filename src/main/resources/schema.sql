@@ -7,8 +7,8 @@ create sequence users_id_seq;
 create table if not exists USERS
 (
     id    bigint       not null default nextval('users_id_seq') primary key,
-    name  varchar(255) not null;
-    email varchar(255) not null;
+    name  varchar(255) not null,
+    email varchar(255) not null,
     unique(email)
 );
 

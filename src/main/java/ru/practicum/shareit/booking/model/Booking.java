@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
 public class Booking {
