@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -38,34 +39,15 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        if (itemDto.getAvailable() == null || !itemDto.getAvailable()) {
-            throw new ValidationException("Available == false || null");
-        }
-
-        UserDto userDto = userService.getUser(userId);
-
-        itemDto.setOwner(userDto);
-        log.info("Пытаемся добавить item: {}", itemDto);
-        return itemService.createItem(itemDto);
+        Item item = itemMapper.toItemFromItemDtoCreate(itemDto, userId);
+        log.info("Пытаемся добавить item: {}", item);
+        return itemService.createItem(item);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
          UserDto userDto = userService.getUser(userId);
-         ItemDto recivedItemDto = itemService.getItem(itemId);
-
-        if (userId == null || userDto == null) {
-            throw new DataNotFoundException("Item с ID владельца " + userId + " не найден");
-        }
-
-        if (!recivedItemDto.getOwner().getId().equals(userId)) {
-            throw new DataNotFoundException("Только владелец может менять данные item");
-        }
-
-        if (itemDto == null || itemId == null) {
-            throw new DataNotFoundException("Item не найден");
-        }
-
         itemDto.setId(itemId);
         itemDto.setOwner(userDto);
         for (ItemDto addedItem : itemService.getAllItems()) {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -16,7 +17,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
@@ -29,7 +32,9 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemRepositoryMapper itemRepositoryMapper;
     private final UserRepository userRepository;
+    private final UserRepositoryMapper userRepositoryMapper;
     private final BookingRepository bookingRepository;
+    @Autowired
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
@@ -52,14 +57,16 @@ public class ItemServiceImpl implements ItemService {
 */
 
     @Override
-    public ItemDto createItem(ItemDto itemDto) {
-        //UserDto userDto = userService.getUser(item.getOwner().getId());
-        //item.setOwner(userMapper.toUser(userDto));
+    public ItemDto createItem(Item item) {
+        UserDto userDto = userService.getUser(item.getOwner().getId());
+        item.setOwner(userMapper.toUser(userDto));
         //User user = userMapper.toUser(userDto);
         //itemDto.setOwner(userDto);
-        Item createdItem = itemMapper.toItemWithId(itemDto, itemDto.getOwner().getId());
+        /*UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден"));*/
+        //item.setOwner(userRepositoryMapper.toUserFromEntity(userEntity));
         try {
-            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(createdItem));
+            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(item));
             return itemMapper.toItemDto(itemRepositoryMapper.toItem(savedItem));
         } catch (Exception exception) {
             throw new StorageException("Ошибка создания Item");
@@ -92,11 +99,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto) {
-        validate(itemId, itemDto);
+        //validate(itemId, item);
         try {
             ItemEntity stored = itemRepository.findById(itemId)
                     .orElseThrow(ChangeSetPersister.NotFoundException::new);
-            Item item = itemMapper.toItemWithoutId(itemDto,itemDto.getOwner().getId());
+            Item item = itemMapper.toItemDtoFromUpdateRequest(itemDto,itemDto.getOwner().getId());
             itemRepositoryMapper.updateEntity(item, stored);
             Item savedItem  = itemRepositoryMapper.toItem(itemRepository.save(stored));
             return itemMapper.toItemDto(savedItem);

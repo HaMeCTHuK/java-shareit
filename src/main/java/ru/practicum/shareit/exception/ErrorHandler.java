@@ -31,20 +31,20 @@ public class ErrorHandler {
     @ExceptionHandler(DataNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlePostNotFoundException(final DataNotFoundException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse("Данные не найдены");
     }
 
 
     @ExceptionHandler(DataAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataAlreadyExistException(final DataAlreadyExistException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse("Данные уже используются");
     }
 
     @ExceptionHandler(StorageException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleStorageException(final StorageException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse("Ошибка Storage");
     }
 
     @ExceptionHandler

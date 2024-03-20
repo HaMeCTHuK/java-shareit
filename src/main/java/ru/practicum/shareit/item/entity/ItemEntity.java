@@ -35,8 +35,8 @@ public class ItemEntity implements Serializable {
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+/*    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", nullable = false)
-    private ItemRequestEntity request;
+    private ItemRequestEntity request;*/
 
 }

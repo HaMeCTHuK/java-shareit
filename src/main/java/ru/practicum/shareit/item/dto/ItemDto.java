@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -22,14 +23,15 @@ public class ItemDto {
 
     private Long id;  //уникальный идентификатор вещи;
     @NotNull
+    @NotEmpty
     private String name;  //краткое название;
     @NotNull
     private String description;  //развёрнутое описание;
     @NotNull
     private Boolean available;  //статус о том, доступна или нет вещь для аренды;
     private UserDto owner;  //владелец вещи;
-    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-    // поле будет храниться ссылка на соответствующий запрос.
+    //* private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
+     // поле будет храниться ссылка на соответствующий запрос.*/
     private Item.ItemBooking lastBooking;
     private Item.ItemBooking nextBooking;
     private List<Item.ItemComment> comments;

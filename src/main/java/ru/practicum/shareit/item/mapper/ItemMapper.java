@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 
@@ -14,14 +15,13 @@ public interface ItemMapper {
     @Mapping(target = "owner.id", source = "userId")
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
-    Item toItemWithId(ItemDto itemDto, Long userId);  //ItemCreateRequest
+    Item toItemFromItemDtoCreate(ItemDto itemDto, Long userId);  //ItemCreateRequest
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "request", ignore = true)
     @Mapping(target = "owner.id", source = "userId")
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking" , ignore = true)
-    Item toItemWithoutId(ItemDto itemDto, Long userId);  //ItemUpdateRequest
+    Item toItemDtoFromUpdateRequest(ItemDto itemDto, Long userId);  //ItemUpdateRequest  @Mapping(target = "request", ignore = true)
 
     Item itemDtoToItem(ItemDto itemDto);
 
