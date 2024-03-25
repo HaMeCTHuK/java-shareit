@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -13,17 +13,20 @@ public interface ItemService {
 
     ItemDto getItem(Long id);
 
-    ItemDto updateItem(Long itemId, ItemDto itemDto);
+    Item getItemWithUserId(Long id, Long userId);
 
-    //ItemDto updateItem(ItemDto itemDto);
+    ItemDto updateItem(Long itemId, ItemDto itemDto);
 
     void deleteItem(Long id);
 
     List<ItemDto> getAllItems();
 
-    List<ItemDto> getAllItemsWithUserId(Long userId);
+    List<Item> getAllItemsWithUserId(Long userId);
 
     List<ItemDto> searchItemsByText(String text, Long userId);
 
-    Comment addComment(Comment comment);
+    CommentDto addComment(Comment comment);
+
+    List<ItemDto> getUsersItems(String email);
+
 }

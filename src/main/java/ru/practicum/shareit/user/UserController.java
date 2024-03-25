@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@Min(1L) @PathVariable Long userId, @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable @Min(1L) Long userId, @RequestBody UserDto userDto) {
 
         if (userDto == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");

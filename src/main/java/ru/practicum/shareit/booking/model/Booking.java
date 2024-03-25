@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -14,8 +12,8 @@ import java.time.LocalDateTime;
  * TODO Sprint add-bookings.
  */
 
-@Getter
-@Setter
+@Data
+@SuperBuilder
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
 public class Booking {

@@ -3,20 +3,21 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/items")
+@RequestMapping(path = "/items")
 @RequiredArgsConstructor
 public class ItemController {
 
@@ -36,6 +37,7 @@ public class ItemController {
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
@@ -60,11 +62,21 @@ public class ItemController {
         return itemService.updateItem(itemId, itemDto);
     }
 
-    @GetMapping("/{id}")
-    public ItemDto getItem(@RequestBody @PathVariable Long id) {
-        log.info("Получаем объект по id: {}", id);
-        return itemService.getItem(id);
+/*    @GetMapping("/{itemId}")
+    public ItemDto getItem(@RequestBody @PathVariable Long itemId) {
+        log.info("Получаем объект по id: {}", itemId);
+        return itemService.getItem(itemId);
+    }*/
+
+
+    @GetMapping("/{itemId}")
+    public ItemDto getItemWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                     @PathVariable Long itemId) {
+        log.info("Получаем объект по id: {}", itemId);
+        Item item = itemService.getItemWithUserId(itemId, userId);
+        return itemMapper.toItemDto(item);
     }
+
 
     @DeleteMapping("/{itemId}")
     public void deleteItemById(@PathVariable Long itemId) {
@@ -75,19 +87,21 @@ public class ItemController {
         itemService.deleteItem(itemId);
     }
 
-//Временно убрал
-/*    @GetMapping
+ /*   @GetMapping
     @ResponseBody
     public List<ItemDto> getAllItems() {
         List<ItemDto> allItems = itemService.getAllItems();
         log.info("Текущее количество пользователей: {}", allItems.size());
+
         return allItems;
     }*/
 
-    @GetMapping
+
     @ResponseBody
+    @GetMapping
     public List<ItemDto> getAllItemsWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        List<ItemDto> allItemsWithUserId = itemService.getAllItemsWithUserId(userId);
+        List<Item> allItemsDtoWithUserId = itemService.getAllItemsWithUserId(userId);
+        List<ItemDto> allItemsWithUserId = itemMapper.toItemsDtoList(allItemsDtoWithUserId);
         log.info("Получаем items с пользователем ID: {}", userId);
         return allItemsWithUserId;
     }
@@ -101,9 +115,18 @@ public class ItemController {
         return itemService.searchItemsByText(text, userId);
     }
 
-/*    @PostMapping("/{itemId}/comment")
-    public CommentDto create(@Min(1L) @PathVariable Long itemId,
-                             @RequestHeader("X-Sharer-User-Id") Long userId, CommentCreateRequst request) {
-        return null
+    @PostMapping("/{itemId}/comment")
+    public CommentDto create(@PathVariable @Min(1L) Long itemId,
+                             @RequestHeader("X-Sharer-User-Id") Long userId,
+                             @Valid @RequestBody CommentDto commentDto) {
+        return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));
+    }
+/*    @GetMapping("/{email}")
+    public List<ItemDto> getUsersItems(@PathVariable @Email String email) {
+        log.info("Вызван метод getUsersItems - поиск items у User`a по email: " + email);
+        if (email.isEmpty()) {
+            return new ArrayList<>();
+        }
+    return itemService.getUsersItems(email);
     }*/
 }

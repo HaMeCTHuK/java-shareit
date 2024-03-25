@@ -6,7 +6,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-//@Mapper(componentModel = "spring")
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
