@@ -3,8 +3,10 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 
@@ -25,8 +27,8 @@ public class BookingController {
     private final BookingMapper bookingMapper;
 
     @PostMapping
-    public BookingDto createBooking(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingDto bookingDto) {
-        Booking booking = bookingMapper.toBookingFromBookingDtoCreate(bookingDto, userId);
+    public BookingDto createBooking(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingDtoCreate bookingDtoCreate) {
+        Booking booking = bookingMapper.toBookingFromBookingDtoCreate(bookingDtoCreate, userId);
         log.info("Пытаемся создать booking: {}", booking);
         return bookingService.createBooking(booking);
     }
@@ -37,17 +39,25 @@ public class BookingController {
         return bookingService.getBooking(bookingId);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<BookingDto> getUserBookings(@PathVariable Long userId) {
+    @GetMapping("/owner/")
+    public List<BookingDto> getUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                            @RequestParam BookingStatus state) {
         log.info("Получаем бронирования пользователя с id: {}", userId);
+        return bookingService.findAllByOwnerItemsAndStatus(userId, state);
+    }
+
+    @GetMapping
+    public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Получаем все бронирования пользователя с id: {}", userId);
         return bookingService.getUserBookings(userId);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto updateBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @PathVariable Long bookingId, @RequestBody BookingDto bookingDto) {
+                                    @PathVariable Long bookingId,
+                                    @RequestParam Boolean approved) {
         log.info("Пытаемся обновить бронирование с id: {}", bookingId);
-        return bookingService.updateBooking(userId, bookingId, bookingDto);
+        return bookingService.updateBooking(userId, bookingId, approved);
     }
 
     @DeleteMapping("/{bookingId}")
@@ -55,4 +65,23 @@ public class BookingController {
         log.info("Удаляем бронирование с id: {}", bookingId);
         bookingService.deleteBooking(bookingId);
     }
+    ////////////
+/*    @GetMapping("/owner/{ownerId}/future")
+    public List<BookingEntity> findFutureBookingsByOwner(@PathVariable Long ownerId) {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        return bookingService.findFutureByOwnerItems(ownerId, now);
+    }
+
+    @GetMapping("/owner/{ownerId}/status/{status}")
+    public List<BookingEntity> findAllBookingsByOwnerAndStatus(@PathVariable Long ownerId, @PathVariable String status) {
+        return bookingService.findAllByOwnerItemsAndStatus(ownerId, status);
+    }
+
+    @GetMapping("/item/{itemId}/first")
+    public Optional<BookingEntity> findFirstBookingAfterNowByItem(@PathVariable Long itemId) {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        return bookingService.findFirstByItemAndStartAfterOrderByStart(itemId, now);
+    }*/
+
+    // Метод для обновления статуса бронирования
 }

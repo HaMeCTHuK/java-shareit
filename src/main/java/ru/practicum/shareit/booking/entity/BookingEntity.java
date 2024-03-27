@@ -30,11 +30,11 @@ public class BookingEntity implements Serializable {
     @Column(name = "end_time", nullable = false)
     private Timestamp end;  //дата и время конца бронирования;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id", nullable = false)
     private ItemEntity item;  //вещь, которую пользователь бронирует;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "booker_id", nullable = false)
     private UserEntity booker;  //пользователь, который осуществляет бронирование;
 

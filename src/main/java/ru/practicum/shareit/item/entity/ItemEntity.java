@@ -31,7 +31,7 @@ public class ItemEntity implements Serializable {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 

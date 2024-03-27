@@ -21,7 +21,11 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     @Query("select b from BookingEntity b where b.item.owner = :owner and b.status = :status order by b.start desc ")
     List<BookingEntity> findAllByOwnerItemsAndStatus(
             @Param("owner") UserEntity owner,
-            @Param("status") BookingEntity status);
+            @Param("status") BookingStatus status); //BookingEntity
+
+    @Query("SELECT b FROM BookingEntity b JOIN FETCH b.item JOIN FETCH b.booker WHERE b.id = :bookingId")
+    Optional<BookingEntity> findByIdWithItemAndBooker(@Param("bookingId") Long bookingId);
+
 
     Optional<BookingEntity> findFirstByItemAndStartBeforeOrderByStartDesc(ItemEntity itemEntity, Timestamp start);
 

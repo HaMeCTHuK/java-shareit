@@ -4,6 +4,8 @@ public enum BookingStatus {
     WAITING,  // новое бронирование, ожидает одобрения
     APPROVED,  //бронирование подтверждено владельцем
     REJECTED,  //бронирование отклонено владельцем
+    ALL,
+    FUTURE,
     CANCELED;  //бронирование отменено создателем.
 
     public static BookingStatus fromString(String str) {
@@ -16,6 +18,10 @@ public enum BookingStatus {
                 return BookingStatus.REJECTED;
             case "CANCELED":
                 return BookingStatus.CANCELED;
+            case "ALL":
+                return BookingStatus.ALL;
+            case "FUTURE":
+                return BookingStatus.FUTURE;
             default:
                 return null;
         }
