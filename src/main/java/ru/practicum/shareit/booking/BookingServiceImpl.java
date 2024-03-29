@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.hibernate.mapping.Collection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -23,8 +24,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,16 +50,23 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Item with id " + booking.getItem().getId() + " is not available for booking");
         }
 
+        /*if (!EnumSet.allOf(BookingStatus.class).contains(booking.getStatus())) {
+            throw new ValidationException("Unsupported booking status: " + booking.getStatus());
+        }*/
+
         UserEntity user = userRepository.findById(booking.getBooker().getId())
                 .orElseThrow(() -> new DataNotFoundException("User with id " + booking.getBooker().getId() + " not found"));
+
+        Timestamp startTime = booking.getStart().equals("undefined") ? null : Timestamp.valueOf(booking.getStart());
+        Timestamp endTime = booking.getEnd().equals("undefined") ? null : Timestamp.valueOf(booking.getEnd());
 
         // Создаем бронирование
         BookingEntity bookingEntity = new BookingEntity();
         bookingEntity.setItem(item);
         bookingEntity.setBooker(user);
         bookingEntity.setStatus(BookingStatus.WAITING);
-        bookingEntity.setStart(Timestamp.valueOf(booking.getStart()));
-        bookingEntity.setEnd(Timestamp.valueOf(booking.getEnd()));
+        bookingEntity.setStart(startTime);
+        bookingEntity.setEnd(endTime);
 
         // Сохраняем бронирование
         BookingEntity savedBooking = bookingRepository.save(bookingEntity);
@@ -73,14 +80,6 @@ public class BookingServiceImpl implements BookingService {
         BookingEntity bookingEntity = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new DataNotFoundException("Booking with id " + bookingId + " not found"));
         return bookingMapper.toDto(bookingEntity);
-    }
-
-    @Override
-    public List<BookingDto> getUserBookings(Long userId) {
-        List<BookingEntity> userBookings = bookingRepository.findAllByBookerId(userId);
-        return userBookings.stream()
-                .map(bookingMapper::toDto)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -106,8 +105,49 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+
+        if (status == null || status.equals(BookingStatus.ALL)) {
+            List<BookingEntity> recivedList = bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL);
+            return bookingMapper.toBookingDtoList(recivedList);
+        }
+
+        if (status == BookingStatus.FUTURE) {
+            List<BookingEntity> recivedList = bookingRepository.findFutureByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+            return bookingMapper.toBookingDtoList(recivedList);
+        }
+
         List<BookingEntity> recivedList = bookingRepository.findAllByOwnerItemsAndStatus(owner, status);
+
         return bookingMapper.toBookingDtoList(recivedList);
+    }
+
+    @Override
+    public List<BookingDto> getUserBookings(Long userId, BookingStatus status) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+
+        if (status == null || status.equals(BookingStatus.ALL)) {
+            List<BookingEntity> userBookings =  bookingRepository.findAllByBookerIdOrderByIdDesc(userId);
+            return bookingMapper.toBookingDtoList(userBookings);
+        }
+
+        if (status == BookingStatus.FUTURE) {
+            List<BookingEntity> userBookings = bookingRepository.findFutureByBooker(user, Timestamp.valueOf(LocalDateTime.now()));
+            return bookingMapper.toBookingDtoList(userBookings);
+        }
+
+        List<BookingEntity> userBookings = bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userId, status);
+
+        return bookingMapper.toBookingDtoList(userBookings);
+    }
+
+    @Override
+    public List<BookingDto> findAllByOwner(Long userId) {
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        List<BookingEntity> bookingList = bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL);
+
+        return bookingMapper.toBookingDtoList(bookingList);
     }
 
 

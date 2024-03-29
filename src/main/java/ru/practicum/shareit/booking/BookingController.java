@@ -9,8 +9,10 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -39,17 +41,25 @@ public class BookingController {
         return bookingService.getBooking(bookingId);
     }
 
-    @GetMapping("/owner/")
-    public List<BookingDto> getUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @RequestParam BookingStatus state) {
+    @GetMapping("/owner")
+    public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                            @RequestParam(required = false) BookingStatus state) {
         log.info("Получаем бронирования пользователя с id: {}", userId);
+
+        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(String.valueOf(state))) {
+            throw new ValidationException("Unsupported booking status: " + state);
+        }
         return bookingService.findAllByOwnerItemsAndStatus(userId, state);
     }
 
     @GetMapping
-    public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                               @RequestParam(required = false) BookingStatus state) {
         log.info("Получаем все бронирования пользователя с id: {}", userId);
-        return bookingService.getUserBookings(userId);
+        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(String.valueOf(state))) {
+            throw new ValidationException("Unsupported booking status: " + state);
+        }
+        return bookingService.getUserBookings(userId, state);
     }
 
     @PatchMapping("/{bookingId}")

@@ -13,44 +13,44 @@ public class ErrorHandler {
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        return new ErrorResponse(String.format("Ошибка валидации", e.getMessage()));
+        return new ErrorResponse(String.format("Ошибка валидации", e.getParameter()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final ValidationException e) {
-        return new ErrorResponse(String.format("Ошибка валидации", e.getMessage()));
+        return new ErrorResponse(String.format("Ошибка валидации ", e.getMessage()));
     }
 
     @ExceptionHandler({IncorrectParameterException.class})
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorResponse handleIncorrectParameterException(final IncorrectParameterException e) {
-        return new ErrorResponse(String.format("Ошибка с полем \"%s\".", e.getParameter()));
+        return new ErrorResponse(String.format("Ошибка с полем \"%s\". ", e.getParameter()));
     }
 
     @ExceptionHandler(DataNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlePostNotFoundException(final DataNotFoundException e) {
-        return new ErrorResponse("Данные не найдены");
+        return new ErrorResponse("Данные не найдены " + e.getMessage());
     }
 
 
     @ExceptionHandler(DataAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataAlreadyExistException(final DataAlreadyExistException e) {
-        return new ErrorResponse("Данные уже используются");
+        return new ErrorResponse("Данные уже используются " + e.getMessage());
     }
 
     @ExceptionHandler(StorageException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleStorageException(final StorageException e) {
-        return new ErrorResponse("Ошибка Storage");
+        return new ErrorResponse("Ошибка Storage " + e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
-        return new ErrorResponse("Произошла непредвиденная ошибка.");
+        return new ErrorResponse("Произошла непредвиденная ошибка. " + e.getMessage());
     }
 
 }

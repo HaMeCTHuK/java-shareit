@@ -13,7 +13,7 @@ public interface BookingService {
 
     BookingDto getBooking(Long bookingId);
 
-    List<BookingDto> getUserBookings(Long userId);
+    List<BookingDto> getUserBookings(Long userId, BookingStatus status);
 
     BookingDto updateBooking(Long userId, Long bookingId, Boolean approved);
 
@@ -21,4 +21,5 @@ public interface BookingService {
 
     List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status);
 
+    List<BookingDto> findAllByOwner(Long userId);
 }
