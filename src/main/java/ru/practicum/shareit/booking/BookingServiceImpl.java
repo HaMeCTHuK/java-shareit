@@ -48,8 +48,8 @@ public class BookingServiceImpl implements BookingService {
         UserEntity user = userRepository.findById(booking.getBooker().getId())
                 .orElseThrow(() -> new DataNotFoundException("User with id " + booking.getBooker().getId() + " not found"));
 
-        Timestamp startTime = booking.getStart().equals("undefined") ? null : Timestamp.valueOf(booking.getStart());
-        Timestamp endTime = booking.getEnd().equals("undefined") ? null : Timestamp.valueOf(booking.getEnd());
+        Timestamp startTime = Timestamp.valueOf(booking.getStart());
+        Timestamp endTime = Timestamp.valueOf(booking.getEnd());
 
         BookingEntity bookingEntity = new BookingEntity();
         bookingEntity.setItem(item);
