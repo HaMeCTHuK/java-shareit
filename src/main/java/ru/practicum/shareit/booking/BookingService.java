@@ -19,4 +19,12 @@ public interface BookingService {
     List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status);
 
     List<BookingDto> findAllByOwner(Long userId);
+
+    List<BookingDto> findCurrentByOwnerItems(Long userId);
+
+    List<BookingDto> findPastByOwnerItems(Long userId);
+
+    List<BookingDto> findCurrentByBooker(Long userId);
+
+    List<BookingDto> findPastByBooker(Long userId);
 }

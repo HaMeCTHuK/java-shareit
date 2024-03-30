@@ -30,10 +30,6 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final ItemMapper itemMapper;
-    private final ItemRepositoryMapper itemRepositoryMapper;
-    private final UserMapper userMapper;
-    private final UserRepositoryMapper userRepositoryMapper;
 
     @Override
     public BookingDto createBooking(Booking booking) {
@@ -45,20 +41,14 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Item with id " + booking.getItem().getId() + " is not available for booking");
         }
 
-        UserEntity user = userRepository.findById(booking.getBooker().getId())
+        UserEntity owner = userRepository.findById(booking.getBooker().getId())
                 .orElseThrow(() -> new DataNotFoundException("User with id " + booking.getBooker().getId() + " not found"));
 
-        Timestamp startTime = Timestamp.valueOf(booking.getStart());
-        Timestamp endTime = Timestamp.valueOf(booking.getEnd());
-
-        BookingEntity bookingEntity = new BookingEntity();
-        bookingEntity.setItem(item);
-        bookingEntity.setBooker(user);
-        bookingEntity.setStatus(BookingStatus.WAITING);
-        bookingEntity.setStart(startTime);
-        bookingEntity.setEnd(endTime);
-
-        BookingEntity savedBooking = bookingRepository.save(bookingEntity);
+        BookingEntity entity = bookingMapper.toEntity(booking);
+        entity.setItem(item);
+        entity.setBooker(owner);
+        entity.setStatus(BookingStatus.WAITING);
+        BookingEntity savedBooking = bookingRepository.save(entity);
 
         return bookingMapper.toDto(savedBooking);
     }
@@ -152,6 +142,38 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBookingDtoList(bookingList);
     }
 
+    @Override
+    public List<BookingDto> findCurrentByOwnerItems(Long userId) {
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        List<BookingEntity> userBookings = bookingRepository.findCurrentByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+        return bookingMapper.toBookingDtoList(userBookings);
+    }
+
+    @Override
+    public List<BookingDto> findPastByOwnerItems(Long userId) {
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        List<BookingEntity> userBookings = bookingRepository.findPastByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+        return bookingMapper.toBookingDtoList(userBookings);
+    }
+
+    @Override
+    public List<BookingDto> findCurrentByBooker(Long userId) {
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        List<BookingEntity> userBookings = bookingRepository.findCurrentByBooker(owner, Timestamp.valueOf(LocalDateTime.now()));
+        return bookingMapper.toBookingDtoList(userBookings);
+    }
+
+    @Override
+    public List<BookingDto> findPastByBooker(Long userId) {
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        List<BookingEntity> userBookings = bookingRepository.findPastByBooker(owner, Timestamp.valueOf(LocalDateTime.now()));
+        return bookingMapper.toBookingDtoList(userBookings);
+    }
+
 
     private void validate(Booking booking) {
         UserEntity user = userRepository.findById(booking.getBooker().getId())
@@ -159,6 +181,10 @@ public class BookingServiceImpl implements BookingService {
 
         ItemEntity item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new DataNotFoundException("Item с id " + booking.getItem().getId() + " не найден"));
+
+        if (booking.getBooker().getId().equals(item.getOwner().getId())) {
+            throw new DataNotFoundException("букер е может быть овнером");
+        }
 
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("End - дата окончания не может быть в прошлом");

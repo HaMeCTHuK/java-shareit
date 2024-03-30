@@ -47,28 +47,27 @@ public class BookingController {
         BookingStatus status;
         switch (state) {
         case "CURRENT":
-            status = BookingStatus.APPROVED;
-            break;
+            return bookingService.findCurrentByOwnerItems(userId);
         case "PAST":
-            status = BookingStatus.CANCELED;
-            break;
+            return bookingService.findPastByOwnerItems(userId);
+        case "ALL":
+            status = BookingStatus.ALL;
+            return bookingService.findAllByOwnerItemsAndStatus(userId, status);
         case "FUTURE":
             status = BookingStatus.FUTURE;
-            break;
+            return bookingService.findAllByOwnerItemsAndStatus(userId, status);
         case "WAITING":
             status = BookingStatus.WAITING;
-            break;
+            return bookingService.findAllByOwnerItemsAndStatus(userId, status);
         case "REJECTED":
             status = BookingStatus.REJECTED;
-            break;
+            return bookingService.findAllByOwnerItemsAndStatus(userId, status);
+        case "CANCELED":
+            status = BookingStatus.CANCELED;
+            return bookingService.findAllByOwnerItemsAndStatus(userId, status);
         default:
-            status = null;
-            break;
-        }
-        if (status == null) {
             throw new ValidationException("Unknown state: " + state);
         }
-        return bookingService.findAllByOwnerItemsAndStatus(userId, status);
     }
 
     @GetMapping
@@ -78,28 +77,27 @@ public class BookingController {
         BookingStatus status;
         switch (state) {
         case "CURRENT":
-            status = BookingStatus.APPROVED;
-            break;
+            return bookingService.findCurrentByBooker(userId);
         case "PAST":
-            status = BookingStatus.CANCELED;
-            break;
+            return bookingService.findPastByBooker(userId);
+        case "ALL":
+            status = BookingStatus.ALL;
+            return bookingService.getUserBookings(userId, status);
         case "FUTURE":
             status = BookingStatus.FUTURE;
-            break;
+            return bookingService.getUserBookings(userId, status);
         case "WAITING":
             status = BookingStatus.WAITING;
-            break;
+            return bookingService.getUserBookings(userId, status);
         case "REJECTED":
             status = BookingStatus.REJECTED;
-            break;
+            return bookingService.getUserBookings(userId, status);
+        case "CANCELED":
+            status = BookingStatus.CANCELED;
+            return bookingService.getUserBookings(userId, status);
         default:
-            status = null;
-            break;
-        }
-        if (status == null) {
             throw new ValidationException("Unknown state: " + state);
         }
-        return bookingService.getUserBookings(userId, status);
     }
 
     @PatchMapping("/{bookingId}")
