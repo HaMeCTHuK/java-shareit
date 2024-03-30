@@ -16,8 +16,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,13 +60,6 @@ public class ItemController {
         return itemService.updateItem(itemId, itemDto);
     }
 
-/*    @GetMapping("/{itemId}")
-    public ItemDto getItem(@RequestBody @PathVariable Long itemId) {
-        log.info("Получаем объект по id: {}", itemId);
-        return itemService.getItem(itemId);
-    }*/
-
-
     @GetMapping("/{itemId}")
     public ItemDto getItemWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @PathVariable Long itemId) {
@@ -86,16 +77,6 @@ public class ItemController {
         log.info("Удаляем пользователя по ID: " + itemId);
         itemService.deleteItem(itemId);
     }
-
- /*   @GetMapping
-    @ResponseBody
-    public List<ItemDto> getAllItems() {
-        List<ItemDto> allItems = itemService.getAllItems();
-        log.info("Текущее количество пользователей: {}", allItems.size());
-
-        return allItems;
-    }*/
-
 
     @ResponseBody
     @GetMapping
@@ -122,12 +103,4 @@ public class ItemController {
         log.info("Вызван метод createComment - поиск items с id " + itemId + " c userId " + userId);
         return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));
     }
-/*    @GetMapping("/{email}")
-    public List<ItemDto> getUsersItems(@PathVariable @Email String email) {
-        log.info("Вызван метод getUsersItems - поиск items у User`a по email: " + email);
-        if (email.isEmpty()) {
-            return new ArrayList<>();
-        }
-    return itemService.getUsersItems(email);
-    }*/
 }

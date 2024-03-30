@@ -15,7 +15,7 @@ public interface ItemMapper {
     @Mapping(target = "owner.id", source = "userId")
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
-    Item toItemFromItemDtoCreate(ItemDto itemDto, Long userId);  //ItemCreateRequest
+    Item toItemFromItemDtoCreate(ItemDto itemDto, Long userId);  //ItemCreate
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "owner.id", source = "userId")
@@ -34,18 +34,5 @@ public interface ItemMapper {
     ItemDto.ItemBooking map(Item.ItemBooking booking);
 
     ItemDto.ItemComment map(Item.ItemComment comment);
-
-/*    @Mapping(target = "itemId", source = "item.id")
-    @Mapping(target = "authorId", source = "author.id")
-    @Mapping(target = "authorName", source = "author.name")
-    CommentDto toCommentDto(Comment comment);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "created", ignore = true)
-    @Mapping(target = "text", source = "itemDto.text")
-    @Mapping(target = "item.id", source = "itemId")
-    @Mapping(target = "author.id", source = "authorId")
-    Comment toComment(CommentDto commentDto, Long itemId, Long authorId);*/
-
 
 }

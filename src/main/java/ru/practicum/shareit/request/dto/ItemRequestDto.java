@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 /**

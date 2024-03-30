@@ -15,8 +15,6 @@ public interface UserRepositoryMapper {
     @Mapping(target = "id", ignore = true)
     UserEntity createToEntity(User user);
 
-/*    @Mapping(target = "id", ignore = true)  /////
-    @Named("toUserEntity")*/
     UserEntity toEntity(User user);
 
     User toUserFromEntity(UserEntity userEntity);

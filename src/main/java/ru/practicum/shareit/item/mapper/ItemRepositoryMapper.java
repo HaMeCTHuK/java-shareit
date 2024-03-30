@@ -4,7 +4,6 @@ import org.mapstruct.*;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -17,11 +16,11 @@ public interface ItemRepositoryMapper {
     @Mapping(target = "nextBooking", ignore = true)
     Item toItem(ItemEntity itemEntity);
 
-    /*@Mapping(target = "request.created", ignore = true)*/
+    /*@Mapping(target = "request.created", ignore = true)*/  //Для следующего спринта оставил
     ItemEntity toEntity(Item item);
 
     @Mapping(target = "id", ignore = true)
-    /*@Mapping(target = "request.created", ignore = true)*/
+    /*@Mapping(target = "request.created", ignore = true)*/  //Для следующего спринта оставил
     void updateEntity(Item item, @MappingTarget ItemEntity itemEntity);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toLocalDateTime")

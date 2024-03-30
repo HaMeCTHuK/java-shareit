@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.user.entity.UserEntity;
 
 import javax.persistence.*;
@@ -36,7 +35,7 @@ public class ItemEntity implements Serializable {
     private UserEntity owner;
 
 /*    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id", nullable = false)
+    @JoinColumn(name = "request_id", nullable = false)   //Для следующего спринта оставил
     private ItemRequestEntity request;*/
 
 }

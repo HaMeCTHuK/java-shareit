@@ -65,7 +65,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto) {
-        //validate(itemId, item);
         try {
             ItemEntity stored = itemRepository.findById(itemId)
                     .orElseThrow(DataNotFoundException::new);
@@ -161,17 +160,6 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-/*    @Override
-    public List<ItemDto> getAllItemsWithUserId(Long userId) {
-        List<ItemEntity> allItems = itemRepository.findAll();
-        List<ItemDto> userItemsDto = allItems.stream()
-                .filter(item -> item.getOwner() != null && item.getOwner().getId().equals(userId))
-                .map(itemRepositoryMapper::toItem)
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
-        return userItemsDto;
-    }*/
-
     @Override
     public List<ItemDto> searchItemsByText(String text, Long userId) {
         List<ItemEntity> allItems = itemRepository.findAll();
@@ -193,14 +181,15 @@ public class ItemServiceImpl implements ItemService {
       public CommentDto addComment(Comment comment) throws DataNotFoundException {
           ItemEntity itemEntity = itemRepository.findById(comment.getItemId())
                   .orElseThrow(DataNotFoundException::new);
-          //UserEntity booker = userRepositoryMapper.toEntity(userMapper.toUser(userService.getUser(comment.getAuthorId())));
 
           UserEntity booker = userRepository.findById(comment.getAuthorId())
                   .orElseThrow(DataNotFoundException::new);
+
           LocalDateTime now = LocalDateTime.now();
           List<Booking> bookings = bookingRepository.findAllByItemAndBooker(itemEntity, booker).stream()
                   .map(bookingMapper::toBooking)
                   .collect(Collectors.toList());
+
           if (bookings.stream().noneMatch(b -> b.isFinished(now))) {
               throw new ValidationException("ошибка валидации");
           }
@@ -216,6 +205,4 @@ public class ItemServiceImpl implements ItemService {
               throw new ValidationException("error");
           }
       }
-    private void validate(Long itemId, ItemDto itemDto) {
-    }
 }

@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
@@ -12,7 +11,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -44,31 +42,63 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @RequestParam(required = false) String state) {
+                                            @RequestParam(required = false, defaultValue = "ALL") String state) {
         log.info("Получаем бронирования пользователя с id: {}", userId);
-
-        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(state)) {
+        BookingStatus status;
+        switch (state) {
+        case "CURRENT":
+            status = BookingStatus.APPROVED;
+            break;
+        case "PAST":
+            status = BookingStatus.CANCELED;
+            break;
+        case "FUTURE":
+            status = BookingStatus.FUTURE;
+            break;
+        case "WAITING":
+            status = BookingStatus.WAITING;
+            break;
+        case "REJECTED":
+            status = BookingStatus.REJECTED;
+            break;
+        default:
+            status = null;
+            break;
+        }
+        if (status == null) {
             throw new ValidationException("Unknown state: " + state);
         }
-
-        BookingStatus status = (state != null) ? BookingStatus.valueOf(state) : null;
-        /*    if (state != null && !EnumSet.allOf(BookingStatus.class).contains(state)) {
-            throw new ValidationException("Unknown state: " + state);
-        }*/
         return bookingService.findAllByOwnerItemsAndStatus(userId, status);
     }
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(required = false) String state) {
+                                               @RequestParam(required = false, defaultValue = "ALL") String state) {
         log.info("Получаем все бронирования пользователя с id: {}", userId);
-        /*if (state != null && !EnumSet.allOf(BookingStatus.class).contains(state)) {
-            throw new ValidationException("Unknown state: " + state);
-        }*/
-        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(state)) {
+        BookingStatus status;
+        switch (state) {
+        case "CURRENT":
+            status = BookingStatus.APPROVED;
+            break;
+        case "PAST":
+            status = BookingStatus.CANCELED;
+            break;
+        case "FUTURE":
+            status = BookingStatus.FUTURE;
+            break;
+        case "WAITING":
+            status = BookingStatus.WAITING;
+            break;
+        case "REJECTED":
+            status = BookingStatus.REJECTED;
+            break;
+        default:
+            status = null;
+            break;
+        }
+        if (status == null) {
             throw new ValidationException("Unknown state: " + state);
         }
-        BookingStatus status = (state != null) ? BookingStatus.valueOf(state) : null;
         return bookingService.getUserBookings(userId, status);
     }
 
@@ -85,23 +115,4 @@ public class BookingController {
         log.info("Удаляем бронирование с id: {}", bookingId);
         bookingService.deleteBooking(bookingId);
     }
-    ////////////
-/*    @GetMapping("/owner/{ownerId}/future")
-    public List<BookingEntity> findFutureBookingsByOwner(@PathVariable Long ownerId) {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        return bookingService.findFutureByOwnerItems(ownerId, now);
-    }
-
-    @GetMapping("/owner/{ownerId}/status/{status}")
-    public List<BookingEntity> findAllBookingsByOwnerAndStatus(@PathVariable Long ownerId, @PathVariable String status) {
-        return bookingService.findAllByOwnerItemsAndStatus(ownerId, status);
-    }
-
-    @GetMapping("/item/{itemId}/first")
-    public Optional<BookingEntity> findFirstBookingAfterNowByItem(@PathVariable Long itemId) {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        return bookingService.findFirstByItemAndStartAfterOrderByStart(itemId, now);
-    }*/
-
-    // Метод для обновления статуса бронирования
 }

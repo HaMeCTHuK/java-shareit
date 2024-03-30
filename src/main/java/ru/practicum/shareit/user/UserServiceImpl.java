@@ -25,7 +25,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(User user) {
         try {
-            User createdUser = userRepositoryMapper.toUserFromEntity(userRepository.save(userRepositoryMapper.createToEntity(user)));
+            User createdUser = userRepositoryMapper.toUserFromEntity(
+                    userRepository.save(
+                            userRepositoryMapper.createToEntity(user)));
             return userMapper.toUserDto(createdUser);
         } catch (Exception exception) {
             throw new StorageException("Ошибка создания пользователя");

@@ -18,7 +18,9 @@ import java.time.LocalDateTime;
 public class BookingDtoCreate {
 
     private Long id;  //уникальный идентификатор бронирования;
+    @NotNull
     private LocalDateTime start;  //дата и время начала бронирования;
+    @NotNull
     private LocalDateTime end;  //дата и время конца бронирования;
     private Long itemId;
     private ItemDto itemDto;  //вещь, которую пользователь бронирует;

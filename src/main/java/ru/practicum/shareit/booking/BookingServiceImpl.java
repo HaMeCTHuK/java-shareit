@@ -1,10 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
-import org.hibernate.mapping.Collection;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -16,7 +13,6 @@ import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
@@ -24,8 +20,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -112,7 +107,7 @@ public class BookingServiceImpl implements BookingService {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
-        if (status == null || status.equals(BookingStatus.ALL)) {
+        if (status.equals(BookingStatus.ALL)) {
             List<BookingEntity> recivedList = bookingRepository.findAllByItemOwnerOrderByIdDesc(owner);
             return bookingMapper.toBookingDtoList(recivedList);
         }
@@ -132,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
-        if (status == null || status.equals(BookingStatus.ALL)) {
+        if (status.equals(BookingStatus.ALL)) {
             List<BookingEntity> userBookings =  bookingRepository.findAllByBookerIdOrderByIdDesc(userId);
             return bookingMapper.toBookingDtoList(userBookings);
         }
@@ -164,8 +159,6 @@ public class BookingServiceImpl implements BookingService {
         ItemEntity item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new DataNotFoundException("Item с id " + booking.getItem().getId() + " не найден"));
 
-
-
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("End - дата окончания не может быть в прошлом");
         }
@@ -185,42 +178,4 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Start date cannot be in the past");
         }
     }
-/*
-    @Override
-    public List<BookingEntity> findFutureByOwnerItems(UserEntity owner, Timestamp now) {
-        return bookingRepository.findFutureByOwnerItems(owner, now);
-    }
-
-    @Override
-    public List<BookingEntity> findAllByOwnerItemsAndStatus(UserEntity owner, BookingEntity status) {
-        return bookingRepository.findAllByOwnerItemsAndStatus(owner, status);
-    }
-
-    @Override
-    public Optional<BookingEntity> findFirstByItemAndStartAfterOrderByStart(ItemEntity itemEntity, Timestamp start) {
-        return bookingRepository.findFirstByItemAndStartAfterOrderByStart(itemEntity, start);
-    }
-
-    @Override
-    public Optional<BookingEntity> findFirstByItemAndStartBeforeOrderByStartDesc(ItemEntity itemEntity, Timestamp start) {
-        return bookingRepository.findFirstByItemAndStartBeforeOrderByStartDesc(itemEntity, start);
-    }
-
-    @Override
-    public List<BookingEntity> findAllByItemAndBooker(Long itemId, Long bookerId) {
-        // Получение ItemEntity и UserEntity из базы данных по их идентификаторам
-        // Затем вызов метода findAllByItemAndBooker с соответствующими объектами
-        // Это требует ваших собственных методов для получения сущностей из базы данных по их идентификаторам
-        // Предполагается, что у вас уже есть методы для этого в ваших репозиториях ItemRepository и UserRepository
-        // Возвращаемый список здесь должен содержать все бронирования для заданного предмета, совершенные заданным пользователем
-    }
-
-    @Override
-    public boolean existByItemAndBookerAndStatus(Long itemId, Long bookerId, String status) {
-        // То же самое, что и для findAllByItemAndBooker
-        // Получите ItemEntity и UserEntity из базы данных по их идентификаторам
-        // Затем вызовите existByItemAndBookerAndStatus с соответствующими объектами и статусом
-        // Предполагается, что у вас уже есть методы для этого в ваших репозиториях ItemRepository и UserRepository
-    }*/
-
 }

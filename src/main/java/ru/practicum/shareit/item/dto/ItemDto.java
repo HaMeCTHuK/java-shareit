@@ -1,17 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +27,7 @@ public class ItemDto {
     private Boolean available;  //статус о том, доступна или нет вещь для аренды;
     private UserDto owner;  //владелец вещи;
     //* private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-     // поле будет храниться ссылка на соответствующий запрос.*/
+     // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
     private Item.ItemBooking lastBooking;
     private Item.ItemBooking nextBooking;
     private List<Item.ItemComment> comments;

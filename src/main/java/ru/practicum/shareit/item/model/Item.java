@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.model;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class Item {
     private Boolean available;  //статус о том, доступна или нет вещь для аренды;
     private User owner;  //владелец вещи;
 /*    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-    // поле будет храниться ссылка на соответствующий запрос.*/
+    // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
     private ItemBooking lastBooking;
     private ItemBooking nextBooking;
     private List<ItemComment> comments;
@@ -56,6 +55,8 @@ public class Item {
         private final String authorName;
         private final LocalDateTime created;
     }
+
+    //Для следующего спринта оставил
 
 /*    create sequence requests_id_seq;
 
