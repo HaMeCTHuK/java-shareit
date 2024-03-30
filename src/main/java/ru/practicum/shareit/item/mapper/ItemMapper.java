@@ -20,7 +20,7 @@ public interface ItemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "owner.id", source = "userId")
     @Mapping(target = "lastBooking", ignore = true)
-    @Mapping(target = "nextBooking" , ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
     Item toItemDtoFromUpdateRequest(ItemDto itemDto, Long userId);  //ItemUpdateRequest  @Mapping(target = "request", ignore = true)
 
     List<Item> toItemsList(List<ItemDto> itemDtos);

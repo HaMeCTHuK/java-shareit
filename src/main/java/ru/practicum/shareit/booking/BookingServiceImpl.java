@@ -102,6 +102,7 @@ public class BookingServiceImpl implements BookingService {
     public void deleteBooking(Long bookingId) {
         bookingRepository.deleteById(bookingId);
     }
+
     @Override
     public List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status) {
         UserEntity owner = userRepository.findById(userId)

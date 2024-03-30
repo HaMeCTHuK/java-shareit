@@ -7,6 +7,7 @@ public class ValidationException extends RuntimeException {
     public String getParameter() {
         return parameter;
     }
+
     public ValidationException(String parameter) {
         this.parameter = parameter;
     }
