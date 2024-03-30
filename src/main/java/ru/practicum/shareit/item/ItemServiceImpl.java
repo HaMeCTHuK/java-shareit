@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -88,34 +89,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemWithUserId(Long itemId, Long userId) {
-        if (!itemRepository.existsById(itemId)) {
-            throw new DataNotFoundException("Item не найден");
-        }
-        return itemRepository.findById(itemId)
-                .map(itemRepositoryMapper::toItem)
-                .map(item -> {
-                    final ItemEntity itemEntity = itemRepositoryMapper.toEntity(item);
-                    if (Objects.equals(item.getOwner().getId(), userId)) {
-                        final Timestamp start = Timestamp.valueOf(LocalDateTime.now());
-                        final BookingEntity lastBooking = bookingRepository
-                                .findFirstByItemAndStartBeforeOrderByStartDesc(itemEntity, start)
-                                .orElse(null);
-                        final BookingEntity nextBooking = bookingRepository
-                                .findFirstByItemAndStartAfterOrderByStart(itemEntity, start)
-                                .orElse(null);
-                        item.setLastBooking(itemRepositoryMapper.toItemBooking(lastBooking));
-                        item.setNextBooking(itemRepositoryMapper.toItemBooking(nextBooking));
-                    }
-                    item.setComments(commentRepository.findAllByItem(itemEntity).stream()
-                            .map(commentMapper::toItemComment)
-                            .collect(Collectors.toList()));
-                    return item;
-                })
-                .orElseThrow(StorageException::new);
-    }
-
-    @Override
     public void deleteItem(Long id) {
         ItemEntity itemEntity = itemRepository.getReferenceById(id);
         itemRepository.delete(itemEntity);
@@ -151,13 +124,50 @@ public class ItemServiceImpl implements ItemService {
                                 .findFirstByItemAndStartAfterOrderByStart(itemEntity, start)
                                 .orElse(null);
                         item.setLastBooking(itemRepositoryMapper.toItemBooking(lastBooking));
-                        item.setNextBooking(itemRepositoryMapper.toItemBooking(nextBooking));
+                        if (nextBooking != null && nextBooking.getStatus() == BookingStatus.REJECTED) {
+                            item.setNextBooking(null);
+                        } else {
+                            item.setNextBooking(itemRepositoryMapper.toItemBooking(nextBooking));
+                        }
                     }
                     item.setComments(commentRepository.findAllByItem(itemEntity).stream()
                             .map(commentMapper:: toItemComment)
                             .collect(Collectors.toList()));
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Item getItemWithUserId(Long itemId, Long userId) {
+        if (!itemRepository.existsById(itemId)) {
+            throw new DataNotFoundException("Item не найден");
+        }
+        return itemRepository.findById(itemId)
+                .map(itemRepositoryMapper::toItem)
+                .map(item -> {
+                    final ItemEntity itemEntity = itemRepositoryMapper.toEntity(item);
+                    if (Objects.equals(item.getOwner().getId(), userId)) {
+                        final Timestamp start = Timestamp.valueOf(LocalDateTime.now());
+                        final BookingEntity lastBooking = bookingRepository
+                                .findFirstByItemAndStartBeforeOrderByStartDesc(itemEntity, start)
+                                .orElse(null);
+                        final BookingEntity nextBooking = bookingRepository
+                                .findFirstByItemAndStartAfterOrderByStart(itemEntity, start)
+                                .orElse(null);
+
+                        item.setLastBooking(itemRepositoryMapper.toItemBooking(lastBooking));
+                        if (nextBooking != null && nextBooking.getStatus() == BookingStatus.REJECTED) {
+                            item.setNextBooking(null);
+                        } else {
+                            item.setNextBooking(itemRepositoryMapper.toItemBooking(nextBooking));
+                        }
+                    }
+                    item.setComments(commentRepository.findAllByItem(itemEntity).stream()
+                            .map(commentMapper::toItemComment)
+                            .collect(Collectors.toList()));
+                    return item;
+                })
+                .orElseThrow(StorageException::new);
     }
 
     @Override
