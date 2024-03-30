@@ -116,9 +116,10 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto create(@PathVariable @Min(1L) Long itemId,
+    public CommentDto createComment(@PathVariable Long itemId,
                              @RequestHeader("X-Sharer-User-Id") Long userId,
                              @Valid @RequestBody CommentDto commentDto) {
+        log.info("Вызван метод createComment - поиск items с id " + itemId + " c userId " + userId);
         return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));
     }
 /*    @GetMapping("/{email}")

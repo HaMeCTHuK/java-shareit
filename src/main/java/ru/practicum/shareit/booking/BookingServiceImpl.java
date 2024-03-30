@@ -50,17 +50,12 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Item with id " + booking.getItem().getId() + " is not available for booking");
         }
 
-        /*if (!EnumSet.allOf(BookingStatus.class).contains(booking.getStatus())) {
-            throw new ValidationException("Unsupported booking status: " + booking.getStatus());
-        }*/
-
         UserEntity user = userRepository.findById(booking.getBooker().getId())
                 .orElseThrow(() -> new DataNotFoundException("User with id " + booking.getBooker().getId() + " not found"));
 
         Timestamp startTime = booking.getStart().equals("undefined") ? null : Timestamp.valueOf(booking.getStart());
         Timestamp endTime = booking.getEnd().equals("undefined") ? null : Timestamp.valueOf(booking.getEnd());
 
-        // Создаем бронирование
         BookingEntity bookingEntity = new BookingEntity();
         bookingEntity.setItem(item);
         bookingEntity.setBooker(user);
@@ -68,7 +63,6 @@ public class BookingServiceImpl implements BookingService {
         bookingEntity.setStart(startTime);
         bookingEntity.setEnd(endTime);
 
-        // Сохраняем бронирование
         BookingEntity savedBooking = bookingRepository.save(bookingEntity);
 
         return bookingMapper.toDto(savedBooking);
@@ -76,10 +70,18 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public BookingDto getBooking(Long bookingId) {
+    public BookingDto getBooking(Long bookingId, Long userId) {
         BookingEntity bookingEntity = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new DataNotFoundException("Booking with id " + bookingId + " not found"));
-        return bookingMapper.toDto(bookingEntity);
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
+        if (bookingEntity.getItem().getOwner().getId().equals(userId) ||
+                bookingEntity.getBooker().getId().equals(userId)) {
+            return bookingMapper.toDto(bookingEntity);
+        } else {
+            throw new DataNotFoundException("User with id " + userId + " cant get booking (owner or booker)");
+        }
+
     }
 
     @Override
@@ -88,7 +90,11 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new DataNotFoundException("Booking with id " + bookingId + " not found"));
 
         if (!bookingEntity.getItem().getOwner().getId().equals(userId)) {
-            throw new ValidationException("Booking with id " + bookingId + " does not belong to user with id " + userId);
+            throw new DataNotFoundException("Booking with id " + bookingId + " does not belong to user with id " + userId);
+        }
+
+        if (bookingEntity.getStatus().equals(BookingStatus.APPROVED)) {
+            throw new ValidationException("Статус уже APPROVED");
         }
 
         bookingEntity.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -107,7 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
         if (status == null || status.equals(BookingStatus.ALL)) {
-            List<BookingEntity> recivedList = bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL);
+            List<BookingEntity> recivedList = bookingRepository.findAllByItemOwnerOrderByIdDesc(owner);
             return bookingMapper.toBookingDtoList(recivedList);
         }
 
@@ -157,6 +163,9 @@ public class BookingServiceImpl implements BookingService {
 
         ItemEntity item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new DataNotFoundException("Item с id " + booking.getItem().getId() + " не найден"));
+
+
+
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("End - дата окончания не может быть в прошлом");
         }

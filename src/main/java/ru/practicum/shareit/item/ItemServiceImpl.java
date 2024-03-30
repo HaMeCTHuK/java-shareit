@@ -191,10 +191,12 @@ public class ItemServiceImpl implements ItemService {
 
       @Override
       public CommentDto addComment(Comment comment) throws DataNotFoundException {
-          ItemEntity itemEntity = itemRepository.findById(comment.getId())
+          ItemEntity itemEntity = itemRepository.findById(comment.getItemId())
                   .orElseThrow(DataNotFoundException::new);
-          UserEntity booker = userRepositoryMapper.toEntity(userMapper.toUser(userService.getUser(comment.getAuthorId())));
+          //UserEntity booker = userRepositoryMapper.toEntity(userMapper.toUser(userService.getUser(comment.getAuthorId())));
 
+          UserEntity booker = userRepository.findById(comment.getAuthorId())
+                  .orElseThrow(DataNotFoundException::new);
           LocalDateTime now = LocalDateTime.now();
           List<Booking> bookings = bookingRepository.findAllByItemAndBooker(itemEntity, booker).stream()
                   .map(bookingMapper::toBooking)
@@ -208,7 +210,8 @@ public class ItemServiceImpl implements ItemService {
               CommentEntity commentEntity = commentMapper.toCommentEntity(comment);
               commentEntity.setItem(itemEntity);
               commentEntity.setAuthor(booker);
-              return commentMapper.toCommentDto(commentRepository.save(commentEntity));
+              CommentEntity savedCommentEntity = commentRepository.save(commentEntity);
+              return commentMapper.toCommentDto(savedCommentEntity);
           } catch (Exception e) {
               throw new ValidationException("error");
           }

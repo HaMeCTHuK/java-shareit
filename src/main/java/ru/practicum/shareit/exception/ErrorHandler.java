@@ -13,7 +13,7 @@ public class ErrorHandler {
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        return new ErrorResponse(String.format("Ошибка валидации", e.getParameter()));
+        return new ErrorResponse(String.format(e.getParameter()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

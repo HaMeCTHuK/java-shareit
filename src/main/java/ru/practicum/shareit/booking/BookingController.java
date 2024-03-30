@@ -36,30 +36,40 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@PathVariable Long bookingId) {
+    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @PathVariable Long bookingId) {
         log.info("Получаем объект бронирования по id: {}", bookingId);
-        return bookingService.getBooking(bookingId);
+        return bookingService.getBooking(bookingId, userId);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @RequestParam(required = false) BookingStatus state) {
+                                            @RequestParam(required = false) String state) {
         log.info("Получаем бронирования пользователя с id: {}", userId);
 
-        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(String.valueOf(state))) {
-            throw new ValidationException("Unsupported booking status: " + state);
+        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(state)) {
+            throw new ValidationException("Unknown state: " + state);
         }
-        return bookingService.findAllByOwnerItemsAndStatus(userId, state);
+
+        BookingStatus status = (state != null) ? BookingStatus.valueOf(state) : null;
+        /*    if (state != null && !EnumSet.allOf(BookingStatus.class).contains(state)) {
+            throw new ValidationException("Unknown state: " + state);
+        }*/
+        return bookingService.findAllByOwnerItemsAndStatus(userId, status);
     }
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(required = false) BookingStatus state) {
+                                               @RequestParam(required = false) String state) {
         log.info("Получаем все бронирования пользователя с id: {}", userId);
-        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(String.valueOf(state))) {
-            throw new ValidationException("Unsupported booking status: " + state);
+        /*if (state != null && !EnumSet.allOf(BookingStatus.class).contains(state)) {
+            throw new ValidationException("Unknown state: " + state);
+        }*/
+        if (state != null && !EnumSet.allOf(BookingStatus.class).toString().contains(state)) {
+            throw new ValidationException("Unknown state: " + state);
         }
-        return bookingService.getUserBookings(userId, state);
+        BookingStatus status = (state != null) ? BookingStatus.valueOf(state) : null;
+        return bookingService.getUserBookings(userId, status);
     }
 
     @PatchMapping("/{bookingId}")

@@ -12,8 +12,15 @@ import java.time.LocalDateTime;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CommentMapper {
+
+    @Mapping(target = "itemId", source = "item.id")
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "authorName", source = "author.name")
+    @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     Item.ItemComment toItemComment(CommentEntity commentEntity);
 
+    @Mapping(target = "itemId", source = "itemId")
+    @Mapping(target = "authorId", source = "userId")
     Comment toCommentWithIds(CommentDto commentDto, Long itemId, Long userId);
 
     Comment toComment(CommentDto commentDto);
@@ -21,6 +28,10 @@ public interface CommentMapper {
     @Mapping(target = "created", source = "created", qualifiedByName = "toTimeStamp")
     CommentEntity toCommentEntity(Comment comment);
 
+    @Mapping(target = "itemId", source = "item.id")
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "authorName", source = "author.name")
+    @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     CommentDto toCommentDto(CommentEntity commentEntity);
 
     @Named("toLocalDateTime")

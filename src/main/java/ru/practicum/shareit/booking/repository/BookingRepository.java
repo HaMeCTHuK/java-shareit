@@ -42,6 +42,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     @Query("SELECT b FROM BookingEntity b WHERE b.booker = :user AND b.start > :now")
     List<BookingEntity> findFutureByBooker(@Param("user") UserEntity user, @Param("now")Timestamp start);
 
+    List<BookingEntity> findAllByItemOwnerOrderByIdDesc(UserEntity owner);
+
     //boolean existByItemAndBookerAndStatus(ItemEntity itemEntity, UserEntity booker, BookingStatus status);
 
 }

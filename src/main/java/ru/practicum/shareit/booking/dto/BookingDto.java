@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -21,7 +22,9 @@ import java.time.LocalDateTime;
 public class BookingDto {
 
     private Long id;  //уникальный идентификатор бронирования;
+    @NotNull
     private LocalDateTime start;  //дата и время начала бронирования;
+    @NotNull
     private LocalDateTime end;  //дата и время конца бронирования;
     private ItemDto item;  //вещь, которую пользователь бронирует;
     private UserDto booker;  //пользователь, который осуществляет бронирование;
