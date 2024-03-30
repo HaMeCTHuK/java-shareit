@@ -10,12 +10,8 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.entity.ItemEntity;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.entity.UserEntity;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
