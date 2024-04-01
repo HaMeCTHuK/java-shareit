@@ -6,7 +6,6 @@ import ru.practicum.shareit.user.entity.UserEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Optional;
 
 @Getter
 @Setter
