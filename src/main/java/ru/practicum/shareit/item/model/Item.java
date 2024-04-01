@@ -23,11 +23,11 @@ public class Item {
     private String description;  //развёрнутое описание;
     private Boolean available;  //статус о том, доступна или нет вещь для аренды;
     private User owner;  //владелец вещи;
-/*    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-    // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
     private ItemBooking lastBooking;
     private ItemBooking nextBooking;
     private List<ItemComment> comments;
+  /*private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
+    // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
 
 
     @Getter
@@ -56,21 +56,6 @@ public class Item {
         private final LocalDateTime created;
     }
 
-    //Для следующего спринта оставил
-
-/*    create sequence requests_id_seq;
-
-    create table if not exists REQUESTS
-            (
-                    id           bigint                      not null default nextval('requests_id_seq') primary key,
-    description  varchar(255)                not null,
-    requestor_id int references USERS(id),
-    created      timestamp without time zone not null
-            );
-
-
-    From table ITEMS
-    requestor_id int references REQUESTS(id)*/
 }
 
 

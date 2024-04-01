@@ -27,6 +27,4 @@ public interface ItemService {
 
     CommentDto addComment(Comment comment);
 
-    List<ItemDto> getUsersItems(String email);
-
 }

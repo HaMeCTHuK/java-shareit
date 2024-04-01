@@ -56,6 +56,4 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
     List<BookingEntity> findAllByItemOwnerOrderByIdDesc(UserEntity owner);
 
-    //boolean existByItemAndBookerAndStatus(ItemEntity itemEntity, UserEntity booker, BookingStatus status);
-
 }

@@ -17,17 +17,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemDto {
 
-    private Long id;  //уникальный идентификатор вещи;
+    private Long id;
     @NotNull
     @NotEmpty
-    private String name;  //краткое название;
+    private String name;
     @NotNull
-    private String description;  //развёрнутое описание;
+    private String description;
     @NotNull
-    private Boolean available;  //статус о том, доступна или нет вещь для аренды;
-    private UserDto owner;  //владелец вещи;
-    //* private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-     // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
+    private Boolean available;
+    private UserDto owner;
+    //* private ItemRequest request;  //Для следующего спринта оставил
     private Item.ItemBooking lastBooking;
     private Item.ItemBooking nextBooking;
     private List<Item.ItemComment> comments;
@@ -38,12 +37,12 @@ public class ItemDto {
     @AllArgsConstructor
     public static class ItemBooking {
 
-        private Long id;  //уникальный идентификатор бронирования;
-        private LocalDateTime start;  //дата и время начала бронирования;
-        private LocalDateTime end;  //дата и время конца бронирования;
-        private Long itemId;  //вещь, которую пользователь бронирует;
-        private Long bookerId;  //пользователь, который осуществляет бронирование;
-        private BookingStatus status;  //статус бронирования.
+        private Long id;
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private Long itemId;
+        private Long bookerId;
+        private BookingStatus status;
 
     }
 

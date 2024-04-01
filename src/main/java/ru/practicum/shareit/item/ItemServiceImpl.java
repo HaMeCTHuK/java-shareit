@@ -182,11 +182,6 @@ public class ItemServiceImpl implements ItemService {
         return foundItemsDto;
     }
 
-    @Override
-    public List<ItemDto> getUsersItems(String email) {
-        return null;
-    }
-
       @Override
       public CommentDto addComment(Comment comment) throws DataNotFoundException {
           ItemEntity itemEntity = itemRepository.findById(comment.getItemId())
