@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -29,9 +30,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto createBooking(Booking booking) {
-        validate(booking);
         ItemEntity item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new DataNotFoundException("Item with id " + booking.getItem().getId() + " not found"));
+
+        validate(booking, item);
 
         if (!item.getAvailable()) {
             throw new ValidationException("Item with id " + booking.getItem().getId() + " is not available for booking");
@@ -50,6 +52,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+    @Transactional
     @Override
     public BookingDto getBooking(Long bookingId, Long userId) {
         BookingEntity bookingEntity = bookingRepository.findById(bookingId)
@@ -170,13 +173,65 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
+    public List<BookingDto> getOwnerBookingsByState(Long userId, String state) {
+        BookingStatus status;
+        switch (state) {
+        case "CURRENT":
+            return findCurrentByOwnerItems(userId);
+        case "PAST":
+            return findPastByOwnerItems(userId);
+        case "ALL":
+            status = BookingStatus.ALL;
+            return findAllByOwnerItemsAndStatus(userId, status);
+        case "FUTURE":
+            status = BookingStatus.FUTURE;
+            return findAllByOwnerItemsAndStatus(userId, status);
+        case "WAITING":
+            status = BookingStatus.WAITING;
+            return findAllByOwnerItemsAndStatus(userId, status);
+        case "REJECTED":
+            status = BookingStatus.REJECTED;
+            return findAllByOwnerItemsAndStatus(userId, status);
+        case "CANCELED":
+            status = BookingStatus.CANCELED;
+            return findAllByOwnerItemsAndStatus(userId, status);
+        default:
+            throw new ValidationException("Unknown state: " + state);
+        }
+    }
 
-    private void validate(Booking booking) {
+    @Override
+    public List<BookingDto> getAllUserBookingsByState(Long userId, String state) {
+        BookingStatus status;
+        switch (state) {
+        case "CURRENT":
+            return findCurrentByBooker(userId);
+        case "PAST":
+            return findPastByBooker(userId);
+        case "ALL":
+            status = BookingStatus.ALL;
+            return getUserBookings(userId, status);
+        case "FUTURE":
+            status = BookingStatus.FUTURE;
+            return getUserBookings(userId, status);
+        case "WAITING":
+            status = BookingStatus.WAITING;
+            return getUserBookings(userId, status);
+        case "REJECTED":
+            status = BookingStatus.REJECTED;
+            return getUserBookings(userId, status);
+        case "CANCELED":
+            status = BookingStatus.CANCELED;
+            return getUserBookings(userId, status);
+        default:
+            throw new ValidationException("Unknown state: " + state);
+        }
+    }
+
+
+    private void validate(Booking booking, ItemEntity item) {
         UserEntity user = userRepository.findById(booking.getBooker().getId())
                 .orElseThrow(() -> new DataNotFoundException("User с id " + booking.getBooker().getId() + " не найден"));
-
-        ItemEntity item = itemRepository.findById(booking.getItem().getId())
-                .orElseThrow(() -> new DataNotFoundException("Item с id " + booking.getItem().getId() + " не найден"));
 
         if (booking.getBooker().getId().equals(item.getOwner().getId())) {
             throw new DataNotFoundException("букер е может быть овнером");

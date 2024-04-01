@@ -27,4 +27,8 @@ public interface BookingService {
     List<BookingDto> findCurrentByBooker(Long userId);
 
     List<BookingDto> findPastByBooker(Long userId);
+
+    List<BookingDto> getOwnerBookingsByState(Long userId, String state);
+
+    List<BookingDto> getAllUserBookingsByState(Long userId, String state);
 }

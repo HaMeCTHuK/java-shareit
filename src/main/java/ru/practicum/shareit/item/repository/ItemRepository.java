@@ -19,4 +19,5 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
             "and (lower(ie.name) like lower(concat('%', :text, '%')) " +
             "or lower(ie.description) like lower(concat('%', :text, '%')))")
     List<ItemEntity> search(@Param("text") String text);
+
 }

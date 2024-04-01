@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.entity.UserEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -30,9 +31,10 @@ public class ItemEntity implements Serializable {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
+
 
 /*    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", nullable = false)   //Для следующего спринта оставил

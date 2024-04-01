@@ -21,12 +21,12 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BookingDto {
 
-    private Long id;  //уникальный идентификатор бронирования;
+    private Long id;
     @NotNull
-    private LocalDateTime start;  //дата и время начала бронирования;
+    private LocalDateTime start;
     @NotNull
-    private LocalDateTime end;  //дата и время конца бронирования;
-    private ItemDto item;  //вещь, которую пользователь бронирует;
-    private UserDto booker;  //пользователь, который осуществляет бронирование;
-    private BookingStatus status;  //статус бронирования.
+    private LocalDateTime end;
+    private ItemDto item;
+    private UserDto booker;
+    private BookingStatus status;
 }
