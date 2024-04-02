@@ -56,4 +56,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
     List<BookingEntity> findAllByItemOwnerOrderByIdDesc(UserEntity owner);
 
+    List<BookingEntity> findAllByItemId(Long itemId);
+
+    List<BookingEntity> findAllByItemIn(List<ItemEntity> item);
 }
