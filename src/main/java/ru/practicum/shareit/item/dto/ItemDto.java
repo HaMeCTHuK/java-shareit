@@ -1,28 +1,60 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
 public class ItemDto {
-    private Long id;  //уникальный идентификатор вещи;
-    @NotEmpty
-    private String name;  //краткое название;
-    @NotEmpty
-    private String description;  //развёрнутое описание;
+
+    private Long id;
     @NotNull
-    private Boolean available;  //статус о том, доступна или нет вещь для аренды;
-    private UserDto owner;  //владелец вещи;
-    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-    // поле будет храниться ссылка на соответствующий запрос.
+    @NotEmpty
+    private String name;
+    @NotNull
+    private String description;
+    @NotNull
+    private Boolean available;
+    private UserDto owner;
+    //* private ItemRequest request;  //Для следующего спринта оставил
+    private Item.ItemBooking lastBooking;
+    private Item.ItemBooking nextBooking;
+    private List<Item.ItemComment> comments;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class ItemBooking {
+
+        private Long id;
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private Long itemId;
+        private Long bookerId;
+        private BookingStatus status;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ItemComment {
+
+        private final Long id;
+        private final String text;
+        private final Long itemId;
+        private final Long authorId;
+        private final String authorName;
+        private final LocalDateTime created;
+    }
 }

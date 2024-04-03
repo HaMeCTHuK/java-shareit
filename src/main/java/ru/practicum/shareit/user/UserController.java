@@ -2,14 +2,16 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -21,19 +23,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
     private final UserService userService;
-
+    private final UserMapper userMapper;
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
-        validateUser(userDto);
+        //validateUser(userDto);
         log.info("Пытаемся добавить пользователя: {}", userDto);
-        return userService.createUser(userDto);
+        User user = userMapper.toUser(userDto);
+        return userService.createUser(user);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId,@RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable @Min(1L) Long userId, @RequestBody UserDto userDto) {
 
         if (userDto == null) {
             throw new DataNotFoundException("Пользователь с ID " + userId + " не найден");
@@ -47,7 +49,7 @@ public class UserController {
 
         userDto.setId(userId);
         log.info("Пытаемся обновить пользователя : {}", userDto);
-        return userService.updateUser(userDto);
+        return userService.updateUser(userId, userMapper.toUser(userDto));
     }
 
     @GetMapping("/{id}")

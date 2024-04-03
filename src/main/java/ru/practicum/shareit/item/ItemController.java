@@ -6,10 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -21,7 +25,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/items")
+@RequestMapping(path = "/items")
 @RequiredArgsConstructor
 public class ItemController {
 
@@ -29,35 +33,21 @@ public class ItemController {
     private final ItemService itemService;
     @Autowired
     private final UserService userService;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        if (itemDto.getAvailable() == null || !itemDto.getAvailable()) {
-            throw new ValidationException("Available == false || null");
-        }
-        UserDto userDto = userService.getUser(userId);
-        itemDto.setOwner(userDto);
-        log.info("Пытаемся добавить item: {}", itemDto);
-        return itemService.createItem(itemDto);
+        Item item = itemMapper.toItemFromItemDtoCreate(itemDto, userId);
+        log.info("Пытаемся добавить item: {}", item);
+        return itemService.createItem(item);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
          UserDto userDto = userService.getUser(userId);
-         ItemDto recivedItemDto = itemService.getItem(itemId);
-
-        if (userId == null || userDto == null) {
-            throw new DataNotFoundException("Item с ID владельца " + userId + " не найден");
-        }
-
-        if (!recivedItemDto.getOwner().getId().equals(userId)) {
-            throw new DataNotFoundException("Только владелец может менять данные item");
-        }
-
-        if (itemDto == null || itemId == null) {
-            throw new DataNotFoundException("Item не найден");
-        }
-
         itemDto.setId(itemId);
         itemDto.setOwner(userDto);
         for (ItemDto addedItem : itemService.getAllItems()) {
@@ -67,14 +57,17 @@ public class ItemController {
         }
 
         log.info("Пытаемся обновить Item : {}", itemDto);
-        return itemService.updateItem(itemDto);
+        return itemService.updateItem(itemId, itemDto);
     }
 
-    @GetMapping("/{id}")
-    public ItemDto getItem(@RequestBody @PathVariable Long id) {
-        log.info("Получаем объект по id: {}", id);
-        return itemService.getItem(id);
+    @GetMapping("/{itemId}")
+    public ItemDto getItemWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                     @PathVariable Long itemId) {
+        log.info("Получаем объект по id: {}", itemId);
+        Item item = itemService.getItemWithUserId(itemId, userId);
+        return itemMapper.toItemDto(item);
     }
+
 
     @DeleteMapping("/{itemId}")
     public void deleteItemById(@PathVariable Long itemId) {
@@ -85,10 +78,11 @@ public class ItemController {
         itemService.deleteItem(itemId);
     }
 
-    @GetMapping
     @ResponseBody
+    @GetMapping
     public List<ItemDto> getAllItemsWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        List<ItemDto> allItemsWithUserId = itemService.getAllItemsWithUserId(userId);
+        List<Item> allItemsDtoWithUserId = itemService.getAllItemsWithUserId(userId);
+        List<ItemDto> allItemsWithUserId = itemMapper.toItemsDtoList(allItemsDtoWithUserId);
         log.info("Получаем items с пользователем ID: {}", userId);
         return allItemsWithUserId;
     }
@@ -96,6 +90,17 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchItemsByText(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text) {
         log.info("Вызван метод searchItemsByQuery - поиск items с text(description) " + text + " c userId " + userId);
-        return text.isEmpty() ? new ArrayList<>() : itemService.searchItemsByText(text, userId);
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return itemService.searchItemsByText(text, userId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@PathVariable Long itemId,
+                             @RequestHeader("X-Sharer-User-Id") Long userId,
+                             @Valid @RequestBody CommentDto commentDto) {
+        log.info("Вызван метод createComment - поиск items с id " + itemId + " c userId " + userId);
+        return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));
     }
 }
