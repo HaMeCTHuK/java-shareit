@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotEmpty;
@@ -26,7 +27,7 @@ public class ItemDto {
     @NotNull
     private Boolean available;
     private UserDto owner;
-    //* private ItemRequest request;  //Для следующего спринта оставил
+    private ItemRequestDto request;
     private Item.ItemBooking lastBooking;
     private Item.ItemBooking nextBooking;
     private List<Item.ItemComment> comments;

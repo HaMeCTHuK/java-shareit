@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -26,8 +27,8 @@ public class Item {
     private ItemBooking lastBooking;
     private ItemBooking nextBooking;
     private List<ItemComment> comments;
-  /*private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
-    // поле будет храниться ссылка на соответствующий запрос.*/  //Для следующего спринта оставил
+    private ItemRequest request;  //если вещь была создана по запросу другого пользователя, то в этом
+    // поле будет храниться ссылка на соответствующий запрос.*/
 
 
     @Getter

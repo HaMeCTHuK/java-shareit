@@ -30,6 +30,7 @@ public interface BookingMapper {
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toTimeStamp")
     @Mapping(target = "end", source = "end", qualifiedByName = "toTimeStamp")
+    @Mapping(target = "item.request.created", source = "item.request.created", qualifiedByName = "toTimeStamp")
     BookingEntity toEntity(Booking booking);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toLocalDateTime")
