@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.common.FromSizeRequest;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
@@ -31,7 +32,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemResponseOnRequestDto> getOwnRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestDto> getOwnRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Получаем список своих запросов вместе с данными об ответах на них.");
         return itemRequestService.getOwnRequests(userId);
     }
@@ -39,9 +40,12 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequestsByOtherUsers(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "10") Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
+        if (from < 0) {
+            throw new ValidationException("Данные from должны быть >= 0");
+        }
         final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем список запросов, созданных другими пользователями.");
         return itemRequestService.getAllRequestsByOtherUsers(userId, from, size, pageable);

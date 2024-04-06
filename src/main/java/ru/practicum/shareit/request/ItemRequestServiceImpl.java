@@ -60,15 +60,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemResponseOnRequestDto> getOwnRequests(Long userId) {
+    public List<ItemRequestDto> getOwnRequests(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new DataNotFoundException("User не найден");
         }
-        // Get all requests for the user from the repository
         List<ItemRequestEntity> userRequests = itemRequestRepository.findByRequestorId(userId);
-        // Map each request to ItemResponseOnRequestDto
         return userRequests.stream()
-                .map(itemRequestMapper::toResponseDto)
+                .map(itemRequestMapper::toDto)
                 .collect(Collectors.toList());
     }
 
