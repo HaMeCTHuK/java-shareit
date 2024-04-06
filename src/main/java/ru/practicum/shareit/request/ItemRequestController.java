@@ -43,9 +43,6 @@ public class ItemRequestController {
             @RequestParam(name = "from", defaultValue = "0") Integer from,
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        if (from < 0) {
-            throw new ValidationException("Данные from должны быть >= 0");
-        }
         final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем список запросов, созданных другими пользователями.");
         return itemRequestService.getAllRequestsByOtherUsers(userId, from, size, pageable);

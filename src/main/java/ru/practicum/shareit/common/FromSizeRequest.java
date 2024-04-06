@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import ru.practicum.shareit.exception.ValidationException;
 
 @ToString
 @EqualsAndHashCode
@@ -20,6 +21,9 @@ public class FromSizeRequest extends PageRequest {
     }
 
     public static FromSizeRequest of(int from, int size, Sort sort) {
+        if (from < 0) {
+            throw new ValidationException("Данные from должны быть >= 0");
+        }
         return new FromSizeRequest(from, size, sort);
     }
 }

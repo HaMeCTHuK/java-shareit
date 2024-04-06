@@ -3,11 +3,14 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.common.FromSizeRequest;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -41,16 +44,24 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @RequestParam(required = false, defaultValue = "ALL") String state) {
+                                             @RequestParam(required = false, defaultValue = "ALL") String state,
+                                             @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                             @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем бронирования пользователя с id: {}, и статусом {}", userId, state);
-        return bookingService.getOwnerBookingsByState(userId, state);
+        return bookingService.getOwnerBookingsByState(userId, state, pageable);
     }
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(required = false, defaultValue = "ALL") String state) {
+                                               @RequestParam(required = false, defaultValue = "ALL") String state,
+                                               @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                               @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем все бронирования пользователя с id: {}, и статусом {}", userId, state);
-        return bookingService.getAllUserBookingsByState(userId, state);
+        return bookingService.getAllUserBookingsByState(userId, state, pageable);
     }
 
     @PatchMapping("/{bookingId}")
