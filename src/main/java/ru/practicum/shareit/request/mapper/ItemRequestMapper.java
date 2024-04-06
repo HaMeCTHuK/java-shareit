@@ -1,9 +1,6 @@
 package ru.practicum.shareit.request.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
@@ -24,7 +21,6 @@ public interface ItemRequestMapper {
     @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     ItemRequestDto toDto(ItemRequestEntity savedRequest);
 
-    //@Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     ItemResponseOnRequestDto toResponseDto(ItemRequestEntity itemRequestEntity);
 
     @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")

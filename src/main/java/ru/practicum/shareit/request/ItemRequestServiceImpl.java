@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.entity.ItemEntity;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -24,6 +26,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -37,10 +40,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserRepository userRepository;
     private final UserRepositoryMapper userRepositoryMapper;
     private final ItemRepository itemRepository;
+    private final ItemRepositoryMapper itemRepositoryMapper;
+    private final ItemMapper itemMapper;
 
     @Override
     public ItemRequestDto createRequest(ItemRequestDto itemRequestDto, Long userId) {
-        // Map ItemRequestDto to ItemRequestEntity
         if (!userRepository.existsById(userId)) {
             throw new DataNotFoundException("User не найден");
         }
@@ -51,9 +55,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         itemRequest.setCreated(LocalDateTime.now());
 
         ItemRequestEntity requestEntity = itemRequestMapper.toEntity(itemRequest);
-
-        //List<ItemEntity> itemEntityList = itemRepository.findAllByOwnerOrderById(userEntity);
-
         ItemRequestEntity savedRequest = itemRequestRepository.save(requestEntity);
 
         return itemRequestMapper.toDto(savedRequest);
@@ -65,29 +66,89 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new DataNotFoundException("User не найден");
         }
         List<ItemRequestEntity> userRequests = itemRequestRepository.findByRequestorId(userId);
-        return userRequests.stream()
+
+        List<Long> idList = userRequests.stream()
+                .map(ItemRequestEntity::getId)
+                .collect(Collectors.toList());
+
+        List<ItemEntity> itemEntityList = itemRepository.findAllByRequestIds(idList);
+        List<ItemResponseOnRequestDto> items = itemRepositoryMapper.toItemsResponseListFromEntity(itemEntityList);
+
+        List<ItemRequestDto> requestDtos = userRequests.stream()
                 .map(itemRequestMapper::toDto)
                 .collect(Collectors.toList());
+
+        for (ItemRequestDto requestDto : requestDtos) {
+            List<ItemResponseOnRequestDto> filteredItems = items.stream()
+                    .filter(item -> {
+                        Long requestId = item.getRequestId();
+                        return requestId != null && requestId.equals(requestDto.getId());
+                    })
+                    .collect(Collectors.toList());
+            requestDto.setItems(filteredItems);
+        }
+
+        return requestDtos;
     }
 
     @Override
     public List<ItemRequestDto> getAllRequestsByOtherUsers(Long userId, int from, int size, Pageable pageable) {
-        // Get all requests except those created by the user
+        if (!userRepository.existsById(userId)) {
+            throw new DataNotFoundException("User не найден");
+        }
         Page<ItemRequestEntity> otherUserRequestsPage = itemRequestRepository.findByRequestorIdNot(userId, pageable);
-        // Map each request to ItemRequestDto
-        List<ItemRequest> recivedList = otherUserRequestsPage.getContent().stream()
-                .map(itemRequestMapper::toFromEntityToRequest)
+
+        List<Long> idList = otherUserRequestsPage.stream()
+                .map(ItemRequestEntity::getId)
                 .collect(Collectors.toList());
-        return itemRequestMapper.toDtoFromRequest(recivedList);
+
+        List<ItemEntity> itemEntityList = itemRepository.findAllByRequestIds(idList);
+        List<ItemResponseOnRequestDto> items = itemRepositoryMapper.toItemsResponseListFromEntity(itemEntityList);
+
+
+        List<ItemRequestDto> recivedList = otherUserRequestsPage.getContent().stream()
+                .map(itemRequestMapper::toDto)
+                .collect(Collectors.toList());
+
+        for (ItemRequestDto requestDto : recivedList) {
+            List<ItemResponseOnRequestDto> filteredItems = items.stream()
+                    .filter(item -> {
+                        Long requestId = item.getRequestId();
+                        return requestId != null && requestId.equals(requestDto.getId());
+                    })
+                    .collect(Collectors.toList());
+            requestDto.setItems(filteredItems);
+        }
+
+        return recivedList;
     }
 
 
     @Override
-    public ItemRequestDto getRequestById(Long requestId) {
-        // Get the request by ID from the repository
+    public ItemRequestDto getRequestById(Long requestId, Long userId) {
         ItemRequestEntity requestEntity = itemRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Item request не найден"));
-        // Map the request to ItemRequestDto
-        return itemRequestMapper.toDto(requestEntity);
+                .orElseThrow(() -> new DataNotFoundException("Item request не найден"));
+
+        if (!userRepository.existsById(userId)) {
+            throw new DataNotFoundException("User не найден");
+        }
+
+        List<ItemEntity> itemEntityList = itemRepository.findAllByRequestId(requestEntity.getId());
+        List<ItemResponseOnRequestDto> items = itemRepositoryMapper.toItemsResponseListFromEntity(itemEntityList);
+
+
+            List<ItemResponseOnRequestDto> filteredItems = items.stream()
+                    .filter(item -> {
+                        Long reqId = item.getRequestId();
+                        return reqId != null && reqId.equals(requestEntity.getId());
+                    })
+                    .collect(Collectors.toList());
+
+            ItemRequestDto itemRequestDto = itemRequestMapper.toDto(requestEntity);
+
+            itemRequestDto.setItems(filteredItems);
+
+
+        return itemRequestDto;
     }
 }

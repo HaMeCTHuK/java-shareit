@@ -4,9 +4,13 @@ import org.mapstruct.*;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -38,5 +42,16 @@ public interface ItemRepositoryMapper {
     default Timestamp toTimeStamp(LocalDateTime localDateTime) {
         return Timestamp.valueOf(localDateTime);
     }
+
+    List<Item> toItemsListFromEntity(List<ItemEntity> itemEntityList);
+
+    @Mapping(target = "requestId", source = "request.id")
+    ItemResponseOnRequestDto itemEntityToItemResponseOnRequestDto(ItemEntity itemEntity);
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "ItemResponseOnRequestDto.requestId", source = "ItemEntity.request.id")
+    @Mapping(target = "available", source = "available")
+    List<ItemResponseOnRequestDto> toItemsResponseListFromEntity(List<ItemEntity> itemEntityList);
 }
 
