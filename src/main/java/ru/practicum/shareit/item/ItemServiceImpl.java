@@ -22,6 +22,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.entity.ItemRequestEntity;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
@@ -50,13 +52,19 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public ItemDto createItem(Item item) {
         UserDto userDto = userService.getUser(item.getOwner().getId());
         item.setOwner(userMapper.toUser(userDto));
+        ItemEntity itemEntity = itemRepositoryMapper.toEntity(item);
+        if (item.getRequest().getId() != null) {
+            ItemRequestEntity itemRequestEntity = itemRequestRepository.getReferenceById(item.getRequest().getId());
+            itemEntity.setRequest(itemRequestEntity);
+        }
         try {
-            ItemEntity savedItem = itemRepository.save(itemRepositoryMapper.toEntity(item));
+            ItemEntity savedItem = itemRepository.save(itemEntity);
             return itemMapper.toItemDto(itemRepositoryMapper.toItem(savedItem));
         } catch (Exception exception) {
             throw new StorageException("Ошибка создания Item");

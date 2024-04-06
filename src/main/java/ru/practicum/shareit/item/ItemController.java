@@ -19,10 +19,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Slf4j
 @RestController
 @RequestMapping(path = "/items")
@@ -34,7 +30,6 @@ public class ItemController {
     @Autowired
     private final UserService userService;
     private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
     @PostMapping

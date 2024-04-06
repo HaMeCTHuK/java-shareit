@@ -16,7 +16,7 @@ public interface ItemRepositoryMapper {
     @Mapping(target = "nextBooking", ignore = true)
     Item toItem(ItemEntity itemEntity);
 
-    @Mapping(target = "request.created", ignore = true)
+    @Mapping(target = "request", ignore = true)
     ItemEntity toEntity(Item item);
 
     @Mapping(target = "id", ignore = true)

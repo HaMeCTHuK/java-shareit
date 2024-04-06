@@ -46,9 +46,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
         UserEntity userEntity = userRepository.getReferenceById(userId);
 
-        ItemRequestEntity requestEntity = itemRequestMapper.toEntity(itemRequestMapper.toItemRequest(itemRequestDto));
-        requestEntity.setRequestor(userEntity);
-        requestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
+        itemRequest.setRequestor(userRepositoryMapper.toUserFromEntity(userEntity));
+        itemRequest.setCreated(LocalDateTime.now());
+
+        ItemRequestEntity requestEntity = itemRequestMapper.toEntity(itemRequest);
 
         //List<ItemEntity> itemEntityList = itemRepository.findAllByOwnerOrderById(userEntity);
 
