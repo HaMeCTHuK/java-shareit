@@ -20,11 +20,12 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.awt.print.Pageable;
+
+import org.springframework.data.domain.Pageable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         requestEntity.setRequestor(userEntity);
         requestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
 
-        List<ItemEntity> itemEntityList = itemRepository.findAllByOwnerOrderById()
+        //List<ItemEntity> itemEntityList = itemRepository.findAllByOwnerOrderById(userEntity);
 
         ItemRequestEntity savedRequest = itemRequestRepository.save(requestEntity);
 

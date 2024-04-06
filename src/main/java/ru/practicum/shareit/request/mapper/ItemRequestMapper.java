@@ -24,8 +24,7 @@ public interface ItemRequestMapper {
     @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     ItemRequestDto toDto(ItemRequestEntity savedRequest);
 
-    @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
-    @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
+    //@Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")
     ItemResponseOnRequestDto toResponseDto(ItemRequestEntity itemRequestEntity);
 
     @Mapping(target = "created", source = "created", qualifiedByName = "toLocalDateTime")

@@ -3,7 +3,7 @@ package ru.practicum.shareit.request;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ItemRequestService {

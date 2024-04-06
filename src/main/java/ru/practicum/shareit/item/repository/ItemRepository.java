@@ -18,4 +18,7 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
             "or lower(ie.description) like lower(concat('%', :text, '%')))")
     List<ItemEntity> search(@Param("text") String text);
 
+    @Query("select ie from ItemEntity ie where ie.request.id in (:itemRequestsIds)")
+    List<ItemEntity> findAllByRequestIds(List<Long> itemRequestsIds);
+
 }
