@@ -19,10 +19,10 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +58,7 @@ class ItemRequestServiceImplTest {
     private ItemRequestServiceImpl itemRequestService;
 
     @Test
-    void createRequest() {
+    void createRequest_ok() {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setName("John Doe");
@@ -128,19 +128,63 @@ class ItemRequestServiceImplTest {
     void getRequestById() {
         Long requestId = 1L;
         Long userId = 1L;
-        ItemRequestEntity requestEntity = new ItemRequestEntity();
-        requestEntity.setId(requestId);
 
+        ItemRequestEntity requestEntity = new ItemRequestEntity();
+        ItemResponseOnRequestDto itemResponseOnRequestDto = new ItemResponseOnRequestDto();
+        itemResponseOnRequestDto.setRequestId(1L);
+        List<ItemResponseOnRequestDto> items = new ArrayList<>();
+        items.add(itemResponseOnRequestDto);
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        itemRequestDto.setItems(items);
+
+        requestEntity.setId(requestId);
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(requestEntity));
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(itemRepository.findAllByRequestId(requestId)).thenReturn(Collections.singletonList(new ItemEntity()));
-        when(itemRepositoryMapper.toItemsResponseListFromEntity(anyList())).thenReturn(Collections.singletonList(new ItemResponseOnRequestDto()));
-        when(itemRequestMapper.toDto(requestEntity)).thenReturn(new ItemRequestDto());
+
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setRequest(requestEntity);
+        when(itemRepository.findAllByRequestId(requestId)).thenReturn(Collections.singletonList(itemEntity));
+        when(itemRepositoryMapper.toItemsResponseListFromEntity(Collections.singletonList(itemEntity))).thenReturn(items);
+        when(itemRequestMapper.toDto(requestEntity)).thenReturn(itemRequestDto);
 
         ItemRequestDto requestDto = itemRequestService.getRequestById(requestId, userId);
 
         assertNotNull(requestDto);
-        assertEquals(requestId, requestDto.getId());
+        assertEquals(requestDto.getItems().get(0).getRequestId(), requestId);
     }
+
+
+    @Test
+    void getAllRequestsByOtherUsers_NotFound() {
+        Long userId = 999L;
+        Pageable pageable = mock(Pageable.class);
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        assertThrows(DataNotFoundException.class, () -> itemRequestService.getAllRequestsByOtherUsers(userId, 0, 10, pageable));
+    }
+
+
+    @Test
+    void getRequestById_InvalidReuestId() {
+        Long requestId = 999L;
+        Long userId = 1L;
+        when(itemRequestRepository.findById(requestId)).thenReturn(Optional.empty());
+
+        assertThrows(DataNotFoundException.class, () -> itemRequestService.getRequestById(requestId, userId));
+    }
+
+    @Test
+    void getRequestById_InvalidUserId() {
+        Long requestId = 1L;
+        Long userId = 999L;
+        ItemRequestEntity requestEntity = new ItemRequestEntity();
+        requestEntity.setId(requestId);
+        when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(requestEntity));
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        assertThrows(DataNotFoundException.class, () -> itemRequestService.getRequestById(requestId, userId));
+    }
+
+
 
 }

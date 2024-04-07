@@ -2,13 +2,12 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.mapper.ItemRepositoryMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
@@ -16,19 +15,12 @@ import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.mapper.UserRepositoryMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-
-import org.springframework.data.domain.Pageable;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-
 import java.util.stream.Collectors;
 
 @Service
@@ -135,7 +127,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<ItemEntity> itemEntityList = itemRepository.findAllByRequestId(requestEntity.getId());
         List<ItemResponseOnRequestDto> items = itemRepositoryMapper.toItemsResponseListFromEntity(itemEntityList);
-
 
             List<ItemResponseOnRequestDto> filteredItems = items.stream()
                     .filter(item -> {
