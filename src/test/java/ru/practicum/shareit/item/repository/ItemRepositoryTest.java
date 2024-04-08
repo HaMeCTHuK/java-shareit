@@ -3,12 +3,10 @@ package ru.practicum.shareit.item.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.entity.UserEntity;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;

@@ -6,7 +6,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.entity.BookingEntity;
-import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
