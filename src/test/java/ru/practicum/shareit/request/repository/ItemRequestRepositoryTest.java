@@ -27,17 +27,17 @@ public class ItemRequestRepositoryTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("name");
         userEntity.setEmail("asd@gogo.ru");
-        userEntity.setId(1L);
+
+        userRepository.save(userEntity);
 
         ItemRequestEntity requestEntity = new ItemRequestEntity();
         requestEntity.setRequestor(userEntity);
         requestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         requestEntity.setDescription("test");
 
-        userRepository.save(userEntity);
         itemRequestRepository.save(requestEntity);
 
-        Long userId = 1L;
+        Long userId = userEntity.getId();
         List<ItemRequestEntity> requestEntities = itemRequestRepository.findByRequestorId(userId);
 
         Assertions.assertFalse(requestEntities.isEmpty());
@@ -65,7 +65,7 @@ public class ItemRequestRepositoryTest {
 
         itemRequestRepository.save(requestEntity);
 
-        Long userId = 2L;
+        Long userId = 3L;
         Page<ItemRequestEntity> page = itemRequestRepository.findByRequestorIdNot(userId, Pageable.unpaged());
 
         Assertions.assertFalse(page.isEmpty());
