@@ -5,8 +5,6 @@ import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
-import ru.practicum.shareit.request.mapper.ItemRequestMapper;
-import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

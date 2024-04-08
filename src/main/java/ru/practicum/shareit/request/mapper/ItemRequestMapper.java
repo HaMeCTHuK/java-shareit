@@ -1,6 +1,9 @@
 package ru.practicum.shareit.request.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;

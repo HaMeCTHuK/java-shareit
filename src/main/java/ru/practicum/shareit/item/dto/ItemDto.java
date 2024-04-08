@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotEmpty;

@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
