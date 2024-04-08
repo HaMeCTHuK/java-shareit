@@ -58,7 +58,7 @@ class BookingControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.patch("/bookings/1")
                         .header("X-Sharer-User-Id", 1L)
                         .param("approved", "true"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

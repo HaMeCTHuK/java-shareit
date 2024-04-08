@@ -103,8 +103,8 @@ public class BookingRepositoryTest {
         BookingEntity bookingEntity = new BookingEntity();
         bookingEntity.setItem(savedItem);
         bookingEntity.setBooker(savedUserEntity);
-        bookingEntity.setStart(now);
-        bookingEntity.setEnd(now);
+        bookingEntity.setStart(Timestamp.valueOf(LocalDateTime.now().plusDays(1)));
+        bookingEntity.setEnd(Timestamp.valueOf(LocalDateTime.now().plusDays(2)));
         bookingEntity.setStatus(BookingStatus.APPROVED);
 
         bookingRepository.save(bookingEntity);
@@ -153,7 +153,7 @@ public class BookingRepositoryTest {
 
         List<BookingEntity> bookings = bookingRepository.findAllByItemAndBooker(savedItem, savedUserEntity);
         assertEquals(1, bookings.size());
-        assertEquals(savedUserEntity.getId(), bookings.get(0).getId());
+        assertEquals(savedUserEntity.getId(), bookings.get(0).getBooker().getId());
     }
 
     @Test
