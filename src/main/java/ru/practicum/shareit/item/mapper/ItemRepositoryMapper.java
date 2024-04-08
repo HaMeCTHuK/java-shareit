@@ -45,6 +45,7 @@ public interface ItemRepositoryMapper {
 
     @Mapping(target = "requestId", source = "request.id")
     ItemResponseOnRequestDto itemEntityToItemResponseOnRequestDto(ItemEntity itemEntity);
+
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
