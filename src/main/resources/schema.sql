@@ -26,7 +26,7 @@ create table if not exists ITEMS
     name         varchar(255) not null,
     description  varchar(255) not null,
     is_available bool                  default false,
-    requestor_id int references REQUESTS(id),
+    request_id int references REQUESTS(id),
     owner_id     int references USERS(id)
 );
 
