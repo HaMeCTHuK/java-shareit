@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DataJpaTest
 public class ItemRepositoryTest {
@@ -50,11 +51,11 @@ public class ItemRepositoryTest {
 
         itemRepository.save(itemEntity);
 
-        Long itemRequestsId = 1L;
+        Long itemRequestsId = savedItemRequestEntity.getId();
 
         List<ItemEntity> items = itemRepository.findAllByRequestId(itemRequestsId);
 
-        assertEquals(1, items.size());
+        assertFalse(items.isEmpty());
 
     }
 

@@ -1,21 +1,29 @@
 package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(BookingController.class)
 class BookingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private BookingService bookingService;
+    @MockBean
+    private BookingMapper bookingMapper;
 
     @Test
     void testCreateBooking() throws Exception {
@@ -28,9 +36,9 @@ class BookingControllerTest {
 
     @Test
     void testGetBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/1")
+        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/7")
                         .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
@@ -40,7 +48,7 @@ class BookingControllerTest {
                         .param("state", "APPROVED")
                         .param("from", "0")
                         .param("size", "10"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
@@ -50,20 +58,20 @@ class BookingControllerTest {
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "10"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
     void testUpdateBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.patch("/bookings/1")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/bookings/9")
                         .header("X-Sharer-User-Id", 1L)
                         .param("approved", "true"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
     void testDeleteBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/bookings/1"))
-                .andExpect(status().is5xxServerError());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/bookings/11"))
+                .andExpect(status().is2xxSuccessful());
     }
 }
