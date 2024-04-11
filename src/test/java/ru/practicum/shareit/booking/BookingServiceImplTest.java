@@ -93,8 +93,6 @@ class BookingServiceImplTest {
         bookingDto.setStart(LocalDateTime.now());
         bookingDto.setEnd(LocalDateTime.now());
 
-
-
         when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
         when(userRepository.findById(4L)).thenReturn(Optional.of(userEntityRequestor));
         when(userRepository.findById(3L)).thenReturn(Optional.of(userEntityOwner));
@@ -109,7 +107,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getBooking_ExistingBooking_Successful() {
+    void getBooking_Successful() {
         Long bookingId = 1L;
 
         UserEntity userEntity = new UserEntity();
@@ -135,6 +133,7 @@ class BookingServiceImplTest {
         bookingEntity.setId(bookingId);
         bookingEntity.setItem(itemEntity);
         bookingEntity.setBooker(userEntity);
+        bookingEntity.setStatus(BookingStatus.APPROVED);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(bookingEntity));
         when(userRepository.findById(3L)).thenReturn(Optional.of(userEntity));
@@ -146,7 +145,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getBooking_NonExistingBooking_ThrowsDataNotFoundException() {
+    void getBooking_DataNotFoundException() {
         Long bookingId = 1L;
         Long userId = 1L;
 
@@ -188,14 +187,14 @@ class BookingServiceImplTest {
         bookingEntity.setId(bookingId);
         bookingEntity.setItem(itemEntity);
         bookingEntity.setBooker(userEntityRequestor);
-        bookingEntity.setStatus(BookingStatus.ALL);
+        bookingEntity.setStatus(BookingStatus.CANCELED);
 
         BookingDto bookingDto = new BookingDto();
         bookingDto.setStart(LocalDateTime.now().plusDays(1));
         bookingDto.setEnd(LocalDateTime.now().plusDays(2));
         bookingDto.setItem(new ItemDto());
         bookingDto.setBooker(new UserDto());
-        bookingDto.setStatus(BookingStatus.ALL);
+        bookingDto.setStatus(BookingStatus.CANCELED);
 
         when(bookingRepository.findByIdWithItemAndBooker(bookingId)).thenReturn(Optional.of(bookingEntity));
         when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
@@ -236,5 +235,166 @@ class BookingServiceImplTest {
         assertNotNull(bookingDtos);
         assertTrue(bookingDtos.isEmpty());
     }
+
+    @Test
+    void getUserBookings_Successful() {
+        Long userId = 1L;
+        BookingStatus status = BookingStatus.FUTURE;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@test.com");
+        userEntity.setName("Jo");
+
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setEmail("test@t.com");
+        userDto.setName("Jonnny");
+
+        BookingEntity bookingEntity = new BookingEntity();
+        bookingEntity.setId(1L);
+        bookingEntity.setItem(new ItemEntity());
+        bookingEntity.setBooker(userEntity);
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setId(1L);
+        bookingDto.setItem(new ItemDto());
+        bookingDto.setBooker(userDto);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(bookingEntity);
+        List<BookingDto> bookDtos = Collections.singletonList(bookingDto);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userId, status, pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(bookDtos);
+
+        List<BookingDto> bookingDtos = bookingService.getUserBookings(userId, status, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Successful() {
+        Long userId = 1L;
+        String state = "WAITING";
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.WAITING, pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertFalse(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void findAllByOwner_Successful() {
+        Long userId = 1L;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL, pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findAllByOwner(userId, pageable);
+
+        assertNotNull(bookingDtos);
+        assertFalse(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void findCurrentByOwnerItems_Successful() {
+        Long userId = 1L;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findCurrentByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findCurrentByOwnerItems(userId, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void findPastByOwnerItems_Successful() {
+        Long userId = 1L;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findPastByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findPastByOwnerItems(userId, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void findCurrentByBooker_Successful() {
+        Long userId = 1L;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findCurrentByBooker(owner, Timestamp.valueOf(LocalDateTime.now()), pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findCurrentByBooker(userId, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void findPastByBooker_Successful() {
+        Long userId = 1L;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findPastByBooker(owner, Timestamp.valueOf(LocalDateTime.now()), pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findPastByBooker(userId, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
 
 }

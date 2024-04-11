@@ -4,12 +4,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.StorageException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -32,6 +37,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -152,7 +158,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem_ValidInput_ReturnsUpdatedItemDto() {
+    void updateItem_ValidItemDto() {
         Long userid = 6L;
         UserDto userDto = new UserDto();
         userDto.setId(userid);
@@ -174,7 +180,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem_NonExistingItem_ThrowsDataNotFoundException() {
+    void updateItem_DataNotFoundException() {
         Long itemId = 999L;
         ItemDto itemDto = new ItemDto();
         itemDto.setId(itemId);
@@ -184,7 +190,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItem_ExistingItemId_ReturnsItemDto() {
+    void getItem_ReturnsItemDto() {
         Long itemId = 1L;
         UserEntity user = new UserEntity();
         user.setId(1L);
@@ -223,7 +229,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItem_NonExistingItemId_ThrowsDataNotFoundException() {
+    void getItem_ThrowsDataNotFoundException() {
         Long itemId = 999L;
         when(itemRepository.existsById(itemId)).thenReturn(false);
 
@@ -296,6 +302,157 @@ class ItemServiceImplTest {
         when(commentRepository.save(any())).thenThrow(StorageException.class);
 
         assertThrows(ValidationException.class, () -> itemService.addComment(comment));
+    }
+
+    @Test
+    void deleteItem_ValidItemId() {
+        Long itemId = 1L;
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(itemId);
+
+        when(itemRepository.existsById(itemId)).thenReturn(true);
+        when(itemRepository.getReferenceById(itemId)).thenReturn(itemEntity);
+
+        assertDoesNotThrow(() -> itemService.deleteItem(itemId));
+    }
+
+    @Test
+    void deleteItem_ItemNotFound() {
+        Long itemId = 999L;
+        when(itemRepository.existsById(itemId)).thenReturn(false);
+
+        assertThrows(DataNotFoundException.class, () -> itemService.deleteItem(itemId));
+    }
+
+    @Test
+    void getAllItems_ReturnsAllItems() {
+        List<ItemEntity> itemEntities = new ArrayList<>();
+        itemEntities.add(new ItemEntity());
+        itemEntities.add(new ItemEntity());
+
+        when(itemRepository.findAll()).thenReturn(itemEntities);
+        when(itemRepositoryMapper.toItem(any())).thenReturn(new Item());
+        when(itemMapper.toItemDto(any())).thenReturn(new ItemDto());
+
+        List<ItemDto> allItems = itemService.getAllItems();
+
+        assertNotNull(allItems);
+        assertEquals(itemEntities.size(), allItems.size());
+    }
+
+    @Test
+    void getAllItems_NoItemsFound() {
+        when(itemRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<ItemDto> allItems = itemService.getAllItems();
+
+        assertNotNull(allItems);
+        assertTrue(allItems.isEmpty());
+    }
+
+    @Test
+    void getAllItemsWithUserId_ValidUserId() {
+        Long userId = 1L;
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setName("Aby");
+        userDto.setEmail("asd@asd.com");
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userService.getUser(userId)).thenReturn(userDto);
+        when(userRepositoryMapper.toEntity(any(User.class))).thenReturn(new UserEntity());
+        when(itemRepository.findAllByOwnerOrderById(any())).thenReturn(Collections.emptyList());
+
+        assertDoesNotThrow(() -> itemService.getAllItemsWithUserId(userId));
+    }
+
+    @Test
+    void getItemWithUserId_ValidItemIdAndUserId() {
+        Long itemId = 1L;
+        Long userId = 1L;
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("123@123.ru");
+        userEntity.setName("test");
+
+        User user = new User();
+        user.setId(userId);
+        user.setEmail("123@123.ru");
+        user.setName("test");
+
+        ItemRequestEntity itemRequest = new ItemRequestEntity();
+        itemRequest.setId(2L);
+        itemRequest.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        itemRequest.setRequestor(userEntity);
+        itemRequest.setDescription("asdasfas");
+
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(itemId);
+        itemEntity.setOwner(userEntity);
+        itemEntity.setName("1234");
+        itemEntity.setAvailable(true);
+        itemEntity.setDescription("testing");
+        itemEntity.setRequest(itemRequest);
+
+        ItemDto iDto = new ItemDto();
+        iDto.setId(itemId);
+        iDto.setName("1234");
+        iDto.setAvailable(true);
+        iDto.setDescription("testing");
+
+        Item item = new Item();
+        item.setId(itemId);
+        item.setName("1234");
+        item.setAvailable(true);
+        item.setDescription("testing");
+        item.setOwner(user);
+
+        when(itemRepository.existsById(itemId)).thenReturn(true);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(bookingRepository.findAllByItemId(itemId)).thenReturn(Collections.emptyList());
+        when(itemRepositoryMapper.toItem(itemEntity)).thenReturn(item);
+        when(commentRepository.findAllByItemId(itemId)).thenReturn(Collections.emptyList());
+        when(commentMapper.toItemComment(new CommentEntity())).thenReturn(
+                new Item.ItemComment(1L,"ok", 1L, 1L, "ok", LocalDateTime.now()));
+
+        assertDoesNotThrow(() -> itemService.getItemWithUserId(itemId, userId));
+
+        Item recivedItem = itemService.getItemWithUserId(itemId, userId);
+        assertNotNull(recivedItem);
+    }
+
+    @Test
+    void addComment_ValidComment() {
+        Comment comment = new Comment();
+        comment.setItemId(1L);
+        comment.setAuthorId(1L);
+        ItemEntity itemEntity = new ItemEntity();
+        UserEntity userEntity = new UserEntity();
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStart(LocalDateTime.now());
+        booking.isFinished(LocalDateTime.now());
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setEnd(LocalDateTime.now());
+
+        BookingEntity bookingEntity = new BookingEntity();
+        bookingEntity.setId(1L);
+        bookingEntity.setStart(Timestamp.valueOf(LocalDateTime.now()));
+
+        List<BookingEntity> recivedList = new ArrayList<>();
+        recivedList.add(bookingEntity);
+
+        when(itemRepository.findById(comment.getItemId())).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(comment.getAuthorId())).thenReturn(Optional.of(userEntity));
+        when(bookingRepository.findAllByItemAndBooker(any(), any())).thenReturn(Collections.singletonList(bookingEntity));
+        when(bookingMapper.toBooking(any(BookingEntity.class))).thenReturn(booking);
+        when(commentMapper.toCommentEntity(any())).thenReturn(new CommentEntity());
+        when(commentRepository.save(any())).thenReturn(new CommentEntity());
+        when(commentMapper.toCommentDto(any(CommentEntity.class))).thenReturn(new CommentDto());
+
+        assertDoesNotThrow(() -> itemService.addComment(comment));
     }
 
 }

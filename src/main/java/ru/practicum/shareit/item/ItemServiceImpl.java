@@ -97,6 +97,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long id) {
+        if (!itemRepository.existsById(id)) {
+            throw new DataNotFoundException("Item не найден");
+        }
         ItemEntity itemEntity = itemRepository.getReferenceById(id);
         itemRepository.delete(itemEntity);
     }
