@@ -11,10 +11,12 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.entity.UserEntity;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -49,9 +51,8 @@ class BookingServiceImplTest {
     @Test
     void createBooking_Successful() {
         Booking booking = new Booking();
-        booking.setStart(LocalDateTime.now());
-        booking.setEnd(LocalDateTime.now());
-
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
 
         Item item = new Item();
         item.setId(1L);
@@ -92,6 +93,8 @@ class BookingServiceImplTest {
         bookingDto.setStart(LocalDateTime.now());
         bookingDto.setEnd(LocalDateTime.now());
 
+
+
         when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
         when(userRepository.findById(4L)).thenReturn(Optional.of(userEntityRequestor));
         when(userRepository.findById(3L)).thenReturn(Optional.of(userEntityOwner));
@@ -99,10 +102,10 @@ class BookingServiceImplTest {
         when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
         when(bookingMapper.toDto(bookingEntity)).thenReturn(bookingDto);
 
-       // BookingDto createdBookingDto = bookingService.createBooking(booking);
+        BookingDto createdBookingDto = bookingService.createBooking(booking);
 
-       // assertNotNull(createdBookingDto);
-        //verify(bookingRepository, times(1)).save(bookingEntity);
+        assertNotNull(createdBookingDto);
+        verify(bookingRepository, times(1)).save(bookingEntity);
     }
 
     @Test
@@ -157,19 +160,51 @@ class BookingServiceImplTest {
         Long userId = 1L;
         Long bookingId = 1L;
 
+        UserEntity userEntityOwner = new UserEntity();
+        userEntityOwner.setId(1L);
+        userEntityOwner.setEmail("123@123.ru");
+        userEntityOwner.setName("boss");
+
+        UserEntity userEntityRequestor = new UserEntity();
+        userEntityRequestor.setId(1L);
+        userEntityRequestor.setEmail("123@123.ru");
+        userEntityRequestor.setName("boss");
+
+        ItemRequestEntity itemRequestEntity = new ItemRequestEntity();
+        itemRequestEntity.setId(2L);
+        itemRequestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        itemRequestEntity.setRequestor(userEntityRequestor);
+        itemRequestEntity.setDescription("asdasfas");
+
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(1L);
+        itemEntity.setOwner(userEntityOwner);
+        itemEntity.setName("123123");
+        itemEntity.setDescription("1231241241");
+        itemEntity.setAvailable(true);
+        itemEntity.setRequest(itemRequestEntity);
+
         BookingEntity bookingEntity = new BookingEntity();
         bookingEntity.setId(bookingId);
-        bookingEntity.setItem(new ItemEntity());
-        bookingEntity.setBooker(new UserEntity());
+        bookingEntity.setItem(itemEntity);
+        bookingEntity.setBooker(userEntityRequestor);
+        bookingEntity.setStatus(BookingStatus.ALL);
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingDto.setEnd(LocalDateTime.now().plusDays(2));
+        bookingDto.setItem(new ItemDto());
+        bookingDto.setBooker(new UserDto());
+        bookingDto.setStatus(BookingStatus.ALL);
 
         when(bookingRepository.findByIdWithItemAndBooker(bookingId)).thenReturn(Optional.of(bookingEntity));
         when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
-        when(bookingMapper.toDto(bookingEntity)).thenReturn(new BookingDto());
+        when(bookingMapper.toDto(bookingEntity)).thenReturn(bookingDto);
 
-       // BookingDto updatedBookingDto = bookingService.updateBooking(userId, bookingId, true);
+       BookingDto updatedBookingDto = bookingService.updateBooking(userId, bookingId, true);
 
-        //assertNotNull(updatedBookingDto);
-        //verify(bookingRepository, times(1)).save(bookingEntity);
+        assertNotNull(updatedBookingDto);
+        verify(bookingRepository, times(1)).save(bookingEntity);
     }
 
     @Test

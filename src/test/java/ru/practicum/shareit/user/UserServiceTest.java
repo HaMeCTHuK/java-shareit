@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,7 +23,7 @@ class UserServiceTest {
     private UserRepository userRepository;
     private UserMapper userMapper;
     private UserRepositoryMapper userRepositoryMapper;
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -35,7 +36,7 @@ class UserServiceTest {
 
     @Test
     void createUser() {
-      /*  var user = new User();
+        var user = new User();
         user.setName("Test User");
         user.setEmail("test@example.com");
 
@@ -46,28 +47,28 @@ class UserServiceTest {
 
         var storedUser = new UserEntity();
         storedUser.setId(1L);
-        storedUser.setName("Initial User");
+        storedUser.setName("User");
         storedUser.setEmail("test@test.com");
 
 
         var userDto = new UserDto();
         userDto.setId(1L);
-        userDto.setName("Test User");
+        userDto.setName("Test2 User");
         userDto.setEmail("test@example.com");
 
-        when(userRepository.save(storedUser)).thenReturn(storedUser);
+        when(userRepository.save(any(UserEntity.class))).thenReturn(storedUser);
 
         var result = userService.createUser(user);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("Test User", result.getName());
-        assertEquals("test@example.com", result.getEmail());*/
+        assertEquals("User", result.getName());
+        assertEquals("test@test.com", result.getEmail());
     }
 
     @Test
     void updateUser() {
-       /* var user = new User();
+        var user = new User();
         user.setName("Updated User");
         user.setEmail("test@test.com");
 
@@ -81,17 +82,15 @@ class UserServiceTest {
         userDto.setName("Test User");
         userDto.setEmail("test@test.com");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(storedUser));
-        when(userRepositoryMapper.toUserFromEntity(userRepository.save(storedUser)))
-                .thenReturn(user);
-        when(userMapper.toUserDto(user)).thenReturn(userDto);
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(storedUser));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(storedUser);
 
         var result = userService.updateUser(1L, user);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Updated User", result.getName());
-        assertEquals("test@test.com", result.getEmail());*/
+        assertEquals("test@test.com", result.getEmail());
     }
 
     @Test
@@ -142,6 +141,7 @@ class UserServiceTest {
         when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
 
         var result = userService.getAllUsers();
+
         assertNotNull(result);
         assertEquals(user.getId(), result.get(0).getId());
     }

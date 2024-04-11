@@ -86,7 +86,7 @@ class ItemServiceImplTest {
     private ItemServiceImpl itemService;
 
     @Test
-    void createItem_ValidInput_ReturnsItemDto() {
+    void createItem_ValidItemDto() {
         Long ownerId = 1L;
         UserEntity userEntity = new UserEntity();
         userEntity.setId(ownerId);
@@ -110,12 +110,13 @@ class ItemServiceImplTest {
         itemRequest.setDescription("asdasfas");
 
         ItemRequestEntity itemRequestEntity = new ItemRequestEntity();
-        itemRequest.setId(2L);
-        itemRequest.setCreated(LocalDateTime.now());
-        itemRequest.setRequestor(user);
-        itemRequest.setDescription("asdasfas");
+        itemRequestEntity.setId(2L);
+        itemRequestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        itemRequestEntity.setRequestor(userEntity);
+        itemRequestEntity.setDescription("asdasfas");
 
         Item item = new Item();
+        item.setId(1L);
         item.setOwner(user);
         item.setName("1234");
         item.setAvailable(true);
@@ -138,14 +139,16 @@ class ItemServiceImplTest {
         itemEntity.setRequest(itemRequestEntity);
 
         when(userService.getUser(ownerId)).thenReturn(userDto);
+        when(itemRepositoryMapper.toEntity(item)).thenReturn(itemEntity);
+        when(itemRequestRepository.getReferenceById(any(Long.class))).thenReturn(itemRequestEntity);
         when(itemRepository.save(any(ItemEntity.class))).thenReturn(itemEntity);
-        when(itemRepositoryMapper.toItem(any(ItemEntity.class))).thenReturn(new Item());
-        when(itemMapper.toItemDto(any())).thenReturn(itemDto);
+        when(itemRepositoryMapper.toItem(itemEntity)).thenReturn(item);
+        when(itemMapper.toItemDto(item)).thenReturn(itemDto);
 
-        //ItemDto createdItem = itemService.createItem(item);
+        ItemDto createdItem = itemService.createItem(item);
 
-        //assertNotNull(createdItem);
-        //assertEquals(ownerId, createdItem.getOwner().getId());
+        assertNotNull(createdItem);
+        assertEquals(ownerId, createdItem.getOwner().getId());
     }
 
     @Test
@@ -207,7 +210,6 @@ class ItemServiceImplTest {
         iDto.setName("1234");
         iDto.setAvailable(true);
         iDto.setDescription("testing");
-
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.getReferenceById(itemId)).thenReturn(item);

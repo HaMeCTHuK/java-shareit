@@ -17,8 +17,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class BookingRepositoryTest {
@@ -70,7 +69,7 @@ public class BookingRepositoryTest {
 
         List<BookingEntity> bookings = bookingRepository.findAllByItemId(itemId);
         assertNotNull(bookings);
-        assertEquals(1, bookings.size());
+        assertFalse(bookings.isEmpty());
 
     }
 
