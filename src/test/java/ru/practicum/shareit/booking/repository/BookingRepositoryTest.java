@@ -33,7 +33,7 @@ public class BookingRepositoryTest {
 
     @Test
     public void testFindAllByItemId() {
-        Long itemId = 1L;
+        Long itemId = 11L;
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
         UserEntity userEntity = new UserEntity();
@@ -43,6 +43,7 @@ public class BookingRepositoryTest {
         UserEntity savedUserEntity = userRepository.save(userEntity);
 
         ItemRequestEntity requestEntity = new ItemRequestEntity();
+        requestEntity.setId(itemId);
         requestEntity.setRequestor(savedUserEntity);
         requestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         requestEntity.setDescription("test");
@@ -50,6 +51,7 @@ public class BookingRepositoryTest {
         ItemRequestEntity savedItemRequestEntity = itemRequestRepository.save(requestEntity);
 
         ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(itemId);
         itemEntity.setAvailable(true);
         itemEntity.setRequest(savedItemRequestEntity);
         itemEntity.setName("name");

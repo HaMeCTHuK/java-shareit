@@ -1,43 +1,70 @@
 package ru.practicum.shareit.user.entity;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.entity.CommentEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+@DataJpaTest
+public class UserEntityTest {
 
-class UserEntityTest {
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
-    void testGettersAndSetters() {
+    public void whenSaveUser_thenUserIsSaved() {
         UserEntity user = new UserEntity();
-        user.setId(1L);
         user.setName("John Doe");
         user.setEmail("john.doe@example.com");
+        UserEntity savedUser = entityManager.persistFlushFind(user);
 
-        assertEquals(1L, user.getId());
-        assertEquals("John Doe", user.getName());
-        assertEquals("john.doe@example.com", user.getEmail());
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+        assertThat(savedUser.getName()).isEqualTo("John Doe");
+        assertThat(savedUser.getEmail()).isEqualTo("john.doe@example.com");
     }
 
     @Test
-    void testComments() {
+    public void whenFindUserById_thenUserIsFound() {
         UserEntity user = new UserEntity();
-        user.setId(1L);
+        user.setName("John Doe");
+        user.setEmail("john.doe@example.com");
+        UserEntity savedUser = entityManager.persistFlushFind(user);
 
-        CommentEntity comment1 = new CommentEntity();
-        comment1.setId(1L);
-        CommentEntity comment2 = new CommentEntity();
-        comment2.setId(2L);
+        UserEntity foundUser = entityManager.find(UserEntity.class, savedUser.getId());
 
-        Set<CommentEntity> comments = new HashSet<>();
-        comments.add(comment1);
-        comments.add(comment2);
-        user.setComments(comments);
-
-        assertEquals(2, user.getComments().size());
+        assertThat(foundUser).isEqualTo(savedUser);
     }
 
+    @Test
+    public void whenUpdateUser_thenUserIsUpdated() {
+        UserEntity user = new UserEntity();
+        user.setName("John Doe");
+        user.setEmail("john.doe@example.com");
+        UserEntity savedUser = entityManager.persistFlushFind(user);
+
+        savedUser.setName("Jane Doe");
+        entityManager.persistAndFlush(savedUser);
+
+        UserEntity updatedUser = entityManager.find(UserEntity.class, savedUser.getId());
+
+        assertThat(updatedUser.getName()).isEqualTo("Jane Doe");
+    }
+
+    @Test
+    public void whenDeleteUser_thenUserIsDeleted() {
+        UserEntity user = new UserEntity();
+        user.setName("John Doe");
+        user.setEmail("john.doe@example.com");
+        UserEntity savedUser = entityManager.persistFlushFind(user);
+
+        entityManager.remove(savedUser);
+        entityManager.flush();
+
+        UserEntity deletedUser = entityManager.find(UserEntity.class, savedUser.getId());
+
+        assertThat(deletedUser).isNull();
+    }
 }
