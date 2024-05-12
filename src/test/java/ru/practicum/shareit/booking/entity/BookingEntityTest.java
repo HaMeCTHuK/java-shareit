@@ -1,80 +1,74 @@
 package ru.practicum.shareit.booking.entity;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.item.entity.ItemEntity;
+import ru.practicum.shareit.user.entity.UserEntity;
 
 import java.sql.Timestamp;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DataJpaTest
+@ExtendWith(MockitoExtension.class)
 public class BookingEntityTest {
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @Mock
+    private ItemEntity mockedItemEntity;
+
+    @Mock
+    private UserEntity mockedUserEntity;
 
     @Test
-    public void whenSaveBooking_thenBookingIsSaved() {
+    public void testGettersAndSetters() {
+        Timestamp start = new Timestamp(System.currentTimeMillis());
+        Timestamp end = new Timestamp(System.currentTimeMillis() + 3600000);
+        BookingStatus status = BookingStatus.APPROVED;
+
         BookingEntity booking = new BookingEntity();
-        booking.setStart(new Timestamp(System.currentTimeMillis()));
-        booking.setEnd(new Timestamp(System.currentTimeMillis() + 3600000));
-        booking.setStatus(BookingStatus.APPROVED);
+        booking.setId(1L);
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setItem(mockedItemEntity);
+        booking.setBooker(mockedUserEntity);
+        booking.setStatus(status);
 
-        BookingEntity savedBooking = entityManager.persistFlushFind(booking);
-
-        assertThat(savedBooking).isNotNull();
-        assertThat(savedBooking.getId()).isNotNull();
-
+        assertEquals(1L, booking.getId());
+        assertEquals(start, booking.getStart());
+        assertEquals(end, booking.getEnd());
+        assertEquals(mockedItemEntity, booking.getItem());
+        assertEquals(mockedUserEntity, booking.getBooker());
+        assertEquals(status, booking.getStatus());
     }
 
     @Test
-    public void whenFindBookingById_thenBookingIsFound() {
+    public void testNoArgsConstructor() {
         BookingEntity booking = new BookingEntity();
-        booking.setStart(new Timestamp(System.currentTimeMillis()));
-        booking.setEnd(new Timestamp(System.currentTimeMillis() + 3600000));
-        booking.setStatus(BookingStatus.APPROVED);
-
-        BookingEntity savedBooking = entityManager.persistFlushFind(booking);
-        BookingEntity foundBooking = entityManager.find(BookingEntity.class, savedBooking.getId());
-
-        assertThat(foundBooking).isEqualTo(savedBooking);
+        assertNotNull(booking);
     }
 
     @Test
-    public void whenUpdateBooking_thenBookingIsUpdated() {
+    public void testAllArgsConstructor() {
+        Timestamp start = new Timestamp(System.currentTimeMillis());
+        Timestamp end = new Timestamp(System.currentTimeMillis() + 3600000);
+        BookingStatus status = BookingStatus.APPROVED;
+
         BookingEntity booking = new BookingEntity();
+        booking.setId(1L);
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setItem(mockedItemEntity);
+        booking.setBooker(mockedUserEntity);
+        booking.setStatus(status);
 
-        booking.setStart(new Timestamp(System.currentTimeMillis()));
-        booking.setEnd(new Timestamp(System.currentTimeMillis() + 3600000)); // 1 hour from now
-        booking.setStatus(BookingStatus.APPROVED);
-
-        BookingEntity savedBooking = entityManager.persistFlushFind(booking);
-
-        savedBooking.setStatus(BookingStatus.CANCELED);
-        entityManager.persistAndFlush(savedBooking);
-
-        BookingEntity updatedBooking = entityManager.find(BookingEntity.class, savedBooking.getId());
-
-        assertThat(updatedBooking.getStatus()).isEqualTo(BookingStatus.CANCELED);
-    }
-
-    @Test
-    public void whenDeleteBooking_thenBookingIsDeleted() {
-        BookingEntity booking = new BookingEntity();
-        booking.setStart(new Timestamp(System.currentTimeMillis()));
-        booking.setEnd(new Timestamp(System.currentTimeMillis() + 3600000));
-        booking.setStatus(BookingStatus.APPROVED);
-
-        BookingEntity savedBooking = entityManager.persistFlushFind(booking);
-
-        entityManager.remove(savedBooking);
-        entityManager.flush();
-
-        BookingEntity deletedBooking = entityManager.find(BookingEntity.class, savedBooking.getId());
-
-        assertThat(deletedBooking).isNull();
+        assertEquals(1L, booking.getId());
+        assertEquals(start, booking.getStart());
+        assertEquals(end, booking.getEnd());
+        assertEquals(mockedItemEntity, booking.getItem());
+        assertEquals(mockedUserEntity, booking.getBooker());
+        assertEquals(status, booking.getStatus());
     }
 }

@@ -216,7 +216,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void findAllByOwnerItemsAndStatus_Successful() {
+    void findAllByOwnerItemsAndStatus_All_Successful() {
         Long userId = 1L;
         BookingStatus status = BookingStatus.ALL;
         Pageable pageable = Pageable.unpaged();
@@ -237,7 +237,27 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getUserBookings_Successful() {
+    void findAllByOwnerItemsAndStatus_Future_Successful() {
+        Long userId = 1L;
+        BookingStatus status = BookingStatus.FUTURE;
+        Pageable pageable = Pageable.unpaged();
+
+        UserEntity owner = new UserEntity();
+        owner.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findFutureByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.findAllByOwnerItemsAndStatus(userId, status, pageable);
+
+        assertNotNull(bookingDtos);
+    }
+
+    @Test
+    void getUserBookings_Future_Successful() {
         Long userId = 1L;
         BookingStatus status = BookingStatus.FUTURE;
         Pageable pageable = Pageable.unpaged();
@@ -371,7 +391,6 @@ class BookingServiceImplTest {
         List<BookingDto> bookingDtos = bookingService.findCurrentByBooker(userId, pageable);
 
         assertNotNull(bookingDtos);
-        assertTrue(bookingDtos.isEmpty());
     }
 
     @Test

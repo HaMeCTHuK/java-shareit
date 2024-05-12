@@ -22,9 +22,6 @@ public interface BookingMapper {
     Booking toBooking(BookingEntity bookingEntity);
 
     @Mapping(target = "booker.id", source = "userId")
-    Booking toBookingFromBookingDtoCreate(BookingDto bookingDtoCreate, Long userId);
-
-    @Mapping(target = "booker.id", source = "userId")
     @Mapping(target = "item.id", source = "bookingDtoCreate.itemId")
     Booking toBookingFromBookingDtoCreate(BookingDtoCreate bookingDtoCreate, Long userId);
 

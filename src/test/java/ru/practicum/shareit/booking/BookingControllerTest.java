@@ -2,76 +2,121 @@ package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.common.FromSizeRequest;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(BookingController.class)
-class BookingControllerTest {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
-    @Autowired
-    private MockMvc mockMvc;
+@ExtendWith(MockitoExtension.class)
+public class BookingControllerTest {
 
-    @MockBean
-    private BookingService bookingService;
-    @MockBean
+    @Mock
+    private BookingServiceImpl bookingService;
+
+    @Mock
     private BookingMapper bookingMapper;
 
+    @InjectMocks
+    private BookingController bookingController;
+
     @Test
-    void testCreateBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"itemId\": 1, \"startDate\": \"2024-04-06T10:00:00\", \"endDate\": \"2024-04-06T12:00:00\"}"))
-                .andExpect(status().isBadRequest());
+    public void testCreateBooking() {
+        BookingDtoCreate bookingDtoCreate = new BookingDtoCreate();
+        Long userId = 1L;
+        BookingDto bookingDto = new BookingDto();
+
+        when(bookingMapper.toBookingFromBookingDtoCreate(bookingDtoCreate, userId)).thenReturn(new Booking());
+        when(bookingService.createBooking(any(Booking.class))).thenReturn(bookingDto);
+
+        BookingDto result = bookingController.createBooking(userId, bookingDtoCreate);
+
+        assertNotNull(result);
     }
 
     @Test
-    void testGetBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/7")
-                        .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().is2xxSuccessful());
+    public void testGetBooking() {
+        Long userId = 1L;
+        Long bookingId = 1L;
+        BookingDto bookingDto = new BookingDto();
+
+        when(bookingService.getBooking(bookingId, userId)).thenReturn(bookingDto);
+
+        BookingDto result = bookingController.getBooking(userId, bookingId);
+
+        assertNotNull(result);
     }
 
     @Test
-    void testGetOwnerBookings() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("state", "APPROVED")
-                        .param("from", "0")
-                        .param("size", "10"))
-                .andExpect(status().is2xxSuccessful());
+    public void testGetOwnerBookings() {
+        Long userId = 1L;
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setId(userId);
+        List<BookingDto> bookingDtoList = new ArrayList<>();
+        bookingDtoList.add(bookingDto);
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        Pageable pageable = FromSizeRequest.of(0, 5, sort);
+
+        when(bookingService.getOwnerBookingsByState(userId, "ALL", pageable)).thenReturn(bookingDtoList);
+
+        List<BookingDto> result = bookingController.getOwnerBookings(userId, "ALL", 0, 5);
+
+        assertNotNull(result);
     }
 
     @Test
-    void testGetAllUserBookings() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("state", "ALL")
-                        .param("from", "0")
-                        .param("size", "10"))
-                .andExpect(status().is2xxSuccessful());
+    public void testGetAllUserBookings() {
+        Long userId = 1L;
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setId(userId);
+        List<BookingDto> bookingDtoList = new ArrayList<>();
+        bookingDtoList.add(bookingDto);
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        Pageable pageable = FromSizeRequest.of(0, 5, sort); // использование FromSizeRequest для создания Pageable
+
+        when(bookingService.getAllUserBookingsByState(userId, "ALL", pageable)).thenReturn(bookingDtoList);
+
+        List<BookingDto> result = bookingController.getAllUserBookings(userId, "ALL", 0, 10);
+
+        assertNotNull(result);
     }
 
     @Test
-    void testUpdateBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.patch("/bookings/9")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("approved", "true"))
-                .andExpect(status().is2xxSuccessful());
+    public void testUpdateBooking() {
+        Long userId = 1L;
+        Long bookingId = 1L;
+        Boolean approved = true;
+        BookingDto bookingDto = new BookingDto();
+
+        when(bookingService.updateBooking(userId, bookingId, approved)).thenReturn(bookingDto);
+
+        BookingDto result = bookingController.updateBooking(userId, bookingId, approved);
+
+        assertNotNull(result);
     }
 
     @Test
-    void testDeleteBooking() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/bookings/11"))
-                .andExpect(status().is2xxSuccessful());
+    public void testDeleteBooking() {
+        Long bookingId = 1L;
+
+        bookingController.deleteBooking(bookingId);
+
+        verify(bookingService, times(1)).deleteBooking(bookingId);
     }
 }
