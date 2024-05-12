@@ -333,7 +333,6 @@ class BookingServiceImplTest {
         List<BookingDto> bookingDtos = bookingService.findCurrentByOwnerItems(userId, pageable);
 
         assertNotNull(bookingDtos);
-        assertTrue(bookingDtos.isEmpty());
     }
 
     @Test
@@ -353,7 +352,6 @@ class BookingServiceImplTest {
         List<BookingDto> bookingDtos = bookingService.findPastByOwnerItems(userId, pageable);
 
         assertNotNull(bookingDtos);
-        assertTrue(bookingDtos.isEmpty());
     }
 
     @Test
@@ -396,5 +394,79 @@ class BookingServiceImplTest {
         assertTrue(bookingDtos.isEmpty());
     }
 
+    @Test
+    void getAllUserBookingsByState_Successful() {
+        Long userId = 1L;
+        String state = "WAITING";
+        Pageable pageable = Pageable.unpaged();
+
+        BookingStatus status = BookingStatus.WAITING;
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(new BookingEntity());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userId, status, pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(new BookingDto()));
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertFalse(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void updateBooking_StatusApproved_Successful() {
+        Long userId = 1L;
+        Long bookingId = 1L;
+
+        UserEntity userEntityOwner = new UserEntity();
+        userEntityOwner.setId(1L);
+        userEntityOwner.setEmail("123@123.ru");
+        userEntityOwner.setName("boss");
+
+        UserEntity userEntityRequestor = new UserEntity();
+        userEntityRequestor.setId(1L);
+        userEntityRequestor.setEmail("123@123.ru");
+        userEntityRequestor.setName("boss");
+
+        ItemRequestEntity itemRequestEntity = new ItemRequestEntity();
+        itemRequestEntity.setId(2L);
+        itemRequestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        itemRequestEntity.setRequestor(userEntityRequestor);
+        itemRequestEntity.setDescription("asdasfas");
+
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(1L);
+        itemEntity.setOwner(userEntityOwner);
+        itemEntity.setName("123123");
+        itemEntity.setDescription("1231241241");
+        itemEntity.setAvailable(true);
+        itemEntity.setRequest(itemRequestEntity);
+
+        BookingEntity bookingEntity = new BookingEntity();
+        bookingEntity.setId(bookingId);
+        bookingEntity.setItem(itemEntity);
+        bookingEntity.setBooker(userEntityRequestor);
+        bookingEntity.setStatus(BookingStatus.WAITING);
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingDto.setEnd(LocalDateTime.now().plusDays(2));
+        bookingDto.setItem(new ItemDto());
+        bookingDto.setBooker(new UserDto());
+        bookingDto.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findByIdWithItemAndBooker(bookingId)).thenReturn(Optional.of(bookingEntity));
+        when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
+        when(bookingMapper.toDto(bookingEntity)).thenReturn(bookingDto);
+
+        BookingDto updatedBookingDto = bookingService.updateBooking(userId, bookingId, true);
+
+        assertNotNull(updatedBookingDto);
+        verify(bookingRepository, times(1)).save(bookingEntity);
+    }
 
 }

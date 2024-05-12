@@ -66,7 +66,7 @@ public class BookingRepositoryTest {
 
         bookingRepository.save(bookingEntity);
 
-        List<BookingEntity> bookings = bookingRepository.findAllByItemId(1L);
+        List<BookingEntity> bookings = bookingRepository.findAllByItemId(savedItem.getId());
         assertNotNull(bookings);
         assertFalse(bookings.isEmpty());
 
