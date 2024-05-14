@@ -25,15 +25,19 @@ public class BookingMapperTest {
 
     private final BookingMapper bookingMapper = new BookingMapperImpl();
     private BookingEntity bookingEntity;
+    private UserEntity userEntity;
+    private UserEntity userEntity2;
+    private CommentEntity commentEntity;
+    private ItemEntity itemEntity;
 
     @BeforeEach
     void setUp() {
-        UserEntity userEntity = new UserEntity();
+        userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setEmail("test@mail.com");
         userEntity.setName("Lesha");
 
-        CommentEntity commentEntity = new CommentEntity();
+        commentEntity = new CommentEntity();
         commentEntity.setId(1L);
         commentEntity.setText("tratatat");
         commentEntity.setAuthor(userEntity);
@@ -43,13 +47,13 @@ public class BookingMapperTest {
         Set <CommentEntity> commentEntitySet = new HashSet<>();
         commentEntitySet.add(commentEntity);
 
-        UserEntity userEntity2 = new UserEntity();
+        userEntity2 = new UserEntity();
         userEntity2.setId(1L);
         userEntity2.setEmail("test2@mail.com");
         userEntity2.setName("Lesha2");
         userEntity2.setComments(commentEntitySet);
 
-        ItemEntity itemEntity = new ItemEntity();
+        itemEntity = new ItemEntity();
         itemEntity.setId(1L);
         itemEntity.setOwner(userEntity2);
         itemEntity.setAvailable(true);

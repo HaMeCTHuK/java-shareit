@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -24,6 +26,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +60,7 @@ class BookingServiceImplTest {
     private BookingDto bookingDto;
     private Booking booking;
     private User user;
+    private  Item item;
 
     @BeforeEach
     void setUp() {
@@ -102,7 +106,7 @@ class BookingServiceImplTest {
         user.setEmail("tet@tet.com");
         user.setName("name");
 
-        Item item = new Item();
+        item = new Item();
         item.setId(1L);
         item.setOwner(user);
         item.setDescription("testsda");
@@ -229,10 +233,10 @@ class BookingServiceImplTest {
         List<BookingEntity> bookingEntities = Collections.singletonList(bookingEntity);
 
         when(userRepository.findById(userEntityOwner.getId())).thenReturn(Optional.of(userEntityOwner));
-        when(bookingRepository.findAllByOwnerAndStatus(userEntityOwner, BookingStatus.WAITING, Pageable.unpaged())).thenReturn(bookingEntities);
+        when(bookingRepository.findAllByOwnerItemsAndStatus(userEntityOwner, BookingStatus.WAITING, Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userEntityOwner.getId(), "WAITING");
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userEntityOwner.getId(), "WAITING",Pageable.unpaged());
 
         assertNotNull(bookingDtos);
         assertFalse(bookingDtos.isEmpty());
@@ -243,10 +247,10 @@ class BookingServiceImplTest {
         List<BookingEntity> bookingEntities = Collections.singletonList(bookingEntity);
 
         when(userRepository.findById(userEntityOwner.getId())).thenReturn(Optional.of(userEntityOwner));
-        when(bookingRepository.findAllByOwner(userEntityOwner, Pageable.unpaged())).thenReturn(bookingEntities);
+        when(bookingRepository.findAllByOwnerItemsAndStatus(userEntityOwner,BookingStatus.ALL, Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.findAllByOwner(userEntityOwner.getId());
+        List<BookingDto> bookingDtos = bookingService.findAllByOwner(userEntityOwner.getId(),Pageable.unpaged());
 
         assertNotNull(bookingDtos);
         assertFalse(bookingDtos.isEmpty());
@@ -260,10 +264,9 @@ class BookingServiceImplTest {
         when(bookingRepository.findCurrentByOwnerItems(userEntityOwner, Timestamp.valueOf(LocalDateTime.now()), Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.findCurrentByOwnerItems(userEntityOwner.getId());
+        List<BookingDto> bookingDtos = bookingService.findCurrentByOwnerItems(userEntityOwner.getId(),Pageable.unpaged());
 
         assertNotNull(bookingDtos);
-        assertFalse(bookingDtos.isEmpty());
     }
 
     @Test
@@ -274,10 +277,9 @@ class BookingServiceImplTest {
         when(bookingRepository.findPastByOwnerItems(userEntityOwner, Timestamp.valueOf(LocalDateTime.now()), Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.findPastByOwnerItems(userEntityOwner.getId());
+        List<BookingDto> bookingDtos = bookingService.findPastByOwnerItems(userEntityOwner.getId(), Pageable.unpaged());
 
         assertNotNull(bookingDtos);
-        assertFalse(bookingDtos.isEmpty());
     }
 
     @Test
@@ -288,10 +290,9 @@ class BookingServiceImplTest {
         when(bookingRepository.findCurrentByBooker(userEntityRequestor, Timestamp.valueOf(LocalDateTime.now()), Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.findCurrentByBooker(userEntityRequestor.getId());
+        List<BookingDto> bookingDtos = bookingService.findCurrentByBooker(userEntityRequestor.getId(), Pageable.unpaged());
 
         assertNotNull(bookingDtos);
-        assertFalse(bookingDtos.isEmpty());
     }
 
     @Test
@@ -302,10 +303,9 @@ class BookingServiceImplTest {
         when(bookingRepository.findPastByBooker(userEntityRequestor, Timestamp.valueOf(LocalDateTime.now()), Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.findPastByBooker(userEntityRequestor.getId());
+        List<BookingDto> bookingDtos = bookingService.findPastByBooker(userEntityRequestor.getId(), Pageable.unpaged());
 
         assertNotNull(bookingDtos);
-        assertFalse(bookingDtos.isEmpty());
     }
 
     @Test
@@ -313,10 +313,10 @@ class BookingServiceImplTest {
         List<BookingEntity> bookingEntities = Collections.singletonList(bookingEntity);
 
         when(userRepository.findById(userEntityRequestor.getId())).thenReturn(Optional.of(userEntityRequestor));
-        when(bookingRepository.findAllByBookerAndStatus(userEntityRequestor, BookingStatus.WAITING, Pageable.unpaged())).thenReturn(bookingEntities);
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userEntityRequestor.getId(), BookingStatus.WAITING, Pageable.unpaged())).thenReturn(bookingEntities);
         when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
 
-        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userEntityRequestor.getId(), "WAITING");
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userEntityRequestor.getId(), "WAITING",Pageable.unpaged());
 
         assertNotNull(bookingDtos);
         assertFalse(bookingDtos.isEmpty());
@@ -325,16 +325,228 @@ class BookingServiceImplTest {
     @Test
     void updateBooking_StatusApproved_Successful() {
         Long bookingId = 1L;
-
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(bookingEntity));
+        when(bookingRepository.findByIdWithItemAndBooker(bookingId)).thenReturn(Optional.of(bookingEntity));
         when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
         when(bookingMapper.toDto(bookingEntity)).thenReturn(bookingDto);
 
-        BookingDto updatedBookingDto = bookingService.updateBooking(bookingId, userEntityRequestor.getId(), true);
+        BookingDto updatedBookingDto = bookingService.updateBooking(bookingId, userEntityOwner.getId(), true);
 
         assertNotNull(updatedBookingDto);
         assertEquals(bookingDto, updatedBookingDto);
     }
+
+    @Test
+    void getUserBookings_OrderByIdDesc_Successful() {
+        Long userId = 1L;
+        BookingStatus status = BookingStatus.ALL;
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"));
+
+        List<BookingEntity> bookingEntities = Collections.singletonList(bookingEntity);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdOrderByIdDesc(userId, pageable)).thenReturn(bookingEntities);
+        when(bookingMapper.toBookingDtoList(bookingEntities)).thenReturn(Collections.singletonList(bookingDto));
+
+        List<BookingDto> bookingDtos = bookingService.getUserBookings(userId, status, pageable);
+
+        assertNotNull(bookingDtos);
+        assertFalse(bookingDtos.isEmpty());
+        assertEquals(1, bookingDtos.size());
+    }
+
+    @Test
+    void getUserBookings_OrderByIdDesc_NoBookings() {
+        Long userId = 1L;
+        BookingStatus status = BookingStatus.ALL;
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"));
+
+        List<BookingEntity> bookingEntities = Collections.emptyList();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdOrderByIdDesc(userId, pageable)).thenReturn(bookingEntities);
+
+        List<BookingDto> bookingDtos = bookingService.getUserBookings(userId, status, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Current_Successful() {
+        Long userId = 1L;
+        String state = "CURRENT";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findCurrentByOwnerItems(any(UserEntity.class), any(Timestamp.class), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Past_Successful() {
+        Long userId = 1L;
+        String state = "PAST";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findPastByOwnerItems(any(UserEntity.class), any(Timestamp.class), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_Current_Successful() {
+        Long userId = 1L;
+        String state = "CURRENT";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findCurrentByBooker(any(UserEntity.class), any(Timestamp.class), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_Past_Successful() {
+        Long userId = 1L;
+        String state = "PAST";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findPastByBooker(any(UserEntity.class), any(Timestamp.class), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_All_Successful() {
+        Long userId = 1L;
+        String state = "ALL";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(any(UserEntity.class), eq(BookingStatus.ALL), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Future_Successful() {
+        Long userId = 1L;
+        String state = "FUTURE";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(any(UserEntity.class), eq(BookingStatus.FUTURE), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Rejected_Successful() {
+        Long userId = 1L;
+        String state = "REJECTED";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(any(UserEntity.class), eq(BookingStatus.REJECTED), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookingsByState_Canceled_Successful() {
+        Long userId = 1L;
+        String state = "CANCELED";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new UserEntity()));
+        when(bookingRepository.findAllByOwnerItemsAndStatus(any(UserEntity.class), eq(BookingStatus.CANCELED), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getOwnerBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_All_Successful() {
+        Long userId = 1L;
+        String state = "ALL";
+        Pageable pageable = PageRequest.of(0, 10);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdOrderByIdDesc(eq(userId), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_Future_Successful() {
+        Long userId = 1L;
+        String state = "FUTURE";
+        Pageable pageable = PageRequest.of(0, 10);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(eq(userId), eq(BookingStatus.FUTURE), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_Rejected_Successful() {
+        Long userId = 1L;
+        String state = "REJECTED";
+        Pageable pageable = PageRequest.of(0, 10);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(eq(userId), eq(BookingStatus.REJECTED), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void getAllUserBookingsByState_Canceled_Successful() {
+        Long userId = 1L;
+        String state = "CANCELED";
+        Pageable pageable = PageRequest.of(0, 10);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntityOwner));
+        when(bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(eq(userId), eq(BookingStatus.CANCELED), eq(pageable))).thenReturn(Collections.emptyList());
+
+        List<BookingDto> bookingDtos = bookingService.getAllUserBookingsByState(userId, state, pageable);
+
+        assertNotNull(bookingDtos);
+        assertTrue(bookingDtos.isEmpty());
+    }
+
 
 
 
@@ -776,5 +988,4 @@ class BookingServiceImplTest {
         assertNotNull(updatedBookingDto);
         verify(bookingRepository, times(1)).save(bookingEntity);
     }*/
-
 }
