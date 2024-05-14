@@ -41,8 +41,6 @@ public interface ItemRepositoryMapper {
         return Timestamp.valueOf(localDateTime);
     }
 
-    List<Item> toItemsListFromEntity(List<ItemEntity> itemEntityList);
-
     @Mapping(target = "requestId", source = "request.id")
     ItemResponseOnRequestDto itemEntityToItemResponseOnRequestDto(ItemEntity itemEntity);
 

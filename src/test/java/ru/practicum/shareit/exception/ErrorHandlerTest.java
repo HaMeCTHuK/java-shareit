@@ -1,47 +1,72 @@
 package ru.practicum.shareit.exception;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.model.Item;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.exception.model.ErrorResponse;
 
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest(controllers = ErrorHandler.class)
 public class ErrorHandlerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @MockBean
-    private BookingService bookingService; // Mock the service that throws the exception
-
     @Test
-    void handleValidationException() throws Exception {
-        Item item = new Item();
-        item.setId(1L);
-        Booking booking = new Booking();
-        booking.setItem(item);
-        given(bookingService.createBooking(new Booking())).willThrow(new ValidationException("Validation failed"));
-
-        mockMvc.perform(get("/some-endpoint"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Validation failed"));
+    public void testHandleValidationException() {
+        ValidationException exception = new ValidationException("Invalid parameter");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleValidationException(exception);
+        assertEquals("Invalid parameter", response.getError());
     }
 
-    // Допишите тесты для остальных методов обработчика исключений
+    @Test
+    public void testHandleMethodArgumentNotValidException() {
+        MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
+        ValidationException exception1 = new ValidationException("Invalid parameter");
+        when(exception.getMessage()).thenReturn("Invalid argument");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleMethodArgumentNotValidException(exception1);
+        assertEquals("Ошибка валидации ", response.getError());
+    }
+
+    @Test
+    public void testHandleIncorrectParameterException() {
+        IncorrectParameterException exception = new IncorrectParameterException("Incorrect field");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleIncorrectParameterException(exception);
+        assertEquals("Ошибка с полем \"Incorrect field\". ", response.getError());
+    }
+
+    @Test
+    public void testHandlePostNotFoundException() {
+        DataNotFoundException exception = new DataNotFoundException("Post not found");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handlePostNotFoundException(exception);
+        assertEquals("Данные не найдены Post not found", response.getError());
+    }
+
+    @Test
+    public void testHandleDataAlreadyExistException() {
+        DataAlreadyExistException exception = new DataAlreadyExistException("Data already exists");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleDataAlreadyExistException(exception);
+        assertEquals("Данные уже используются Data already exists", response.getError());
+    }
+
+    @Test
+    public void testHandleStorageException() {
+        StorageException exception = new StorageException("Storage error");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleStorageException(exception);
+        assertEquals("Ошибка Storage Storage error", response.getError());
+    }
+
+    @Test
+    public void testHandleThrowable() {
+        Throwable exception = new RuntimeException("Unexpected error");
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleThrowable(exception);
+        assertEquals("Произошла непредвиденная ошибка. Unexpected error", response.getError());
+    }
 }

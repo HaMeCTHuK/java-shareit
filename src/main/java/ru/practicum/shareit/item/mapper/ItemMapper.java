@@ -32,8 +32,4 @@ public interface ItemMapper {
     @Mapping(target = "requestId", source = "request.id")
     ItemDto toItemDto(Item item);
 
-    ItemDto.ItemBooking map(Item.ItemBooking booking);
-
-    ItemDto.ItemComment map(Item.ItemComment comment);
-
 }
