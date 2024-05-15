@@ -1,14 +1,12 @@
 package ru.practicum.shareit.exception;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import ru.practicum.shareit.exception.model.ErrorResponse;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import ru.practicum.shareit.exception.*;
-import ru.practicum.shareit.exception.model.ErrorResponse;
 
 public class ErrorHandlerTest {
 

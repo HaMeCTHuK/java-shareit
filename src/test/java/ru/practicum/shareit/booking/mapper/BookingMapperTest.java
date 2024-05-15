@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking.mapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -19,6 +17,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BookingMapperTest {
 
@@ -43,7 +44,7 @@ public class BookingMapperTest {
         commentEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         commentEntity.setItem(new ItemEntity());
 
-        Set <CommentEntity> commentEntitySet = new HashSet<>();
+        Set<CommentEntity> commentEntitySet = new HashSet<>();
         commentEntitySet.add(commentEntity);
 
         userEntity2 = new UserEntity();

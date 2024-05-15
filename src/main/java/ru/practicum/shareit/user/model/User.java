@@ -5,9 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-
 @Data
 @SuperBuilder
 @EqualsAndHashCode(of = {"id"})
