@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.entity.BookingEntity;
@@ -37,10 +39,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
@@ -453,6 +452,135 @@ class ItemServiceImplTest {
         when(commentMapper.toCommentDto(any(CommentEntity.class))).thenReturn(new CommentDto());
 
         assertDoesNotThrow(() -> itemService.addComment(comment));
+    }
+
+    @Test
+    void getAllItemsWithUserId_ShouldReturnItemsWithBookingsAndComments() {
+        Long ownerId = 1L;
+        Set<CommentEntity> commentEntitySet = new HashSet<>();
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(ownerId);
+        userEntity.setEmail("123@123.ru");
+        userEntity.setName("boss");
+        userEntity.setComments(commentEntitySet);
+
+        ItemRequestEntity itemRequestEntity = new ItemRequestEntity();
+        itemRequestEntity.setId(2L);
+        itemRequestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        itemRequestEntity.setRequestor(userEntity);
+        itemRequestEntity.setDescription("asdasfas");
+
+        ItemEntity itemEntity = new ItemEntity();
+        itemEntity.setId(1L);
+        itemEntity.setOwner(userEntity);
+        itemEntity.setName("123123");
+        itemEntity.setDescription("1231241241");
+        itemEntity.setAvailable(true);
+        itemEntity.setRequest(itemRequestEntity);
+
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setId(1L);
+        commentEntity.setText("tratatat");
+        commentEntity.setAuthor(userEntity);
+        commentEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        commentEntity.setItem(itemEntity);
+
+        commentEntitySet.add(commentEntity);
+
+        User user = new User();
+        user.setId(ownerId);
+        user.setEmail("123@123.ru");
+        user.setName("test");
+
+        Item.ItemComment comment = new Item.ItemComment(1L,
+                "tratata",
+                1L,
+                1L,
+                "name",
+                LocalDateTime.now());
+
+        List<Item.ItemComment> itemComments = new ArrayList<>();
+        itemComments.add(comment);
+
+        UserDto userDto = new UserDto();
+        userDto.setId(ownerId);
+        userDto.setEmail("123@123.ru");
+        userDto.setName("test");
+
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(2L);
+        itemRequest.setCreated(LocalDateTime.now());
+        itemRequest.setRequestor(user);
+        itemRequest.setDescription("asdasfas");
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(2L);
+        itemDto.setOwner(userDto);
+        itemDto.setName("1234");
+        itemDto.setAvailable(true);
+        itemDto.setDescription("123124124");
+
+        BookingEntity bookingEntity = new BookingEntity();
+        bookingEntity.setId(1L);
+        bookingEntity.setItem(itemEntity);
+        bookingEntity.setBooker(userEntity);
+        bookingEntity.setStatus(BookingStatus.WAITING);
+        bookingEntity.setStart(Timestamp.valueOf(LocalDateTime.now()));
+        bookingEntity.setEnd(Timestamp.valueOf(LocalDateTime.now().plusDays(1)));
+
+        Item.ItemBooking itemBooking = new Item.ItemBooking(
+                1L,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1),
+                1L,
+                1L,
+                BookingStatus.APPROVED);
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(user);
+        item.setName("1234");
+        item.setAvailable(true);
+        item.setDescription("123124124");
+        item.setRequest(itemRequest);
+        item.setLastBooking(itemBooking);
+        item.setNextBooking(itemBooking);
+        item.setComments(itemComments);
+
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStatus(BookingStatus.APPROVED);
+
+        List<ItemEntity> items = new ArrayList<>();
+        items.add(itemEntity);
+        List<CommentEntity> comments = new ArrayList<>();
+        comments.add(commentEntity);
+        List<BookingEntity> bookings = new ArrayList<>();
+        bookings.add(bookingEntity);
+
+        when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(userService.getUser(user.getId())).thenReturn(userDto);
+        when(userMapper.toUser(userDto)).thenReturn(user);
+        when(userRepositoryMapper.toEntity(user)).thenReturn(userEntity);
+        when(itemRepository.findAllByOwnerOrderById(userEntity)).thenReturn(items);
+        when(bookingRepository.findAllByItemIn(Mockito.anyList())).thenReturn(bookings);
+        when(itemRepositoryMapper.toItem(itemEntity)).thenReturn(item);
+
+        when(commentRepository.findAllByItem(Mockito.any())).thenReturn(comments);
+
+        List<Item> result = itemService.getAllItemsWithUserId(user.getId());
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.size());
+
+        Item firstItem = result.get(0);
+        Assertions.assertEquals("1234", firstItem.getName());
+        Assertions.assertEquals("123124124", firstItem.getDescription());
+        Assertions.assertTrue(firstItem.getAvailable());
+        Assertions.assertEquals(user.getId(), firstItem.getOwner().getId());
     }
 
 }

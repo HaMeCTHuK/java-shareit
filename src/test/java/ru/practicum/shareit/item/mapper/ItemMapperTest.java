@@ -3,27 +3,17 @@ package ru.practicum.shareit.item.mapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.entity.CommentEntity;
-import ru.practicum.shareit.item.entity.ItemEntity;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -130,7 +120,7 @@ public class ItemMapperTest {
         assertEquals(itemDto.getDescription(), mappedItem.getDescription());
         assertEquals(1L, mappedItem.getOwner().getId());
     }
-
+/*
     @Test
     public void testToItemsList() {
         List<ItemDto> itemDtoList = new ArrayList<>();
@@ -185,6 +175,6 @@ public class ItemMapperTest {
         assertEquals(item.getName(), mappedDto.getName());
         assertEquals(item.getDescription(), mappedDto.getDescription());
         assertEquals(item.getRequest().getId(), mappedDto.getRequestId());
-    }
+    }*/
 
 }

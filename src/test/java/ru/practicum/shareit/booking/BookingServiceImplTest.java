@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
@@ -544,5 +546,129 @@ class BookingServiceImplTest {
 
         assertNotNull(bookingDtos);
         assertTrue(bookingDtos.isEmpty());
+    }
+
+    @Test
+    void createBookingShouldThrowExceptionWhenBookerIsOwner() {
+        User newUser = new User();
+        newUser.setId(1L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+
+        Assertions.assertThrows(DataNotFoundException.class, () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBookingShouldThrowExceptionWhenEndDateIsBeforeStartDate() {
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+        booking.setStart(LocalDateTime.now());
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBookingShouldThrowExceptionWhenStartDateIsNull() {
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+        booking.setEnd(LocalDateTime.now().plusDays(1));
+        booking.setStart(null);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBookingShouldThrowExceptionWhenEndDateIsNull() {
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+        booking.setStart(null);
+        booking.setEnd(LocalDateTime.now().plusDays(1));
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+
+
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBookingShouldThrowExceptionWhenStartDateIsInPast() {
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+        booking.setStart(LocalDateTime.now().minusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(1));
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBookingShouldNotThrowExceptionWhenDatesAreEquals() {
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setName("123");
+        newUser.setEmail("1231@12312.com");
+
+        item.setOwner(newUser);
+
+        booking.setItem(item);
+        booking.setBooker(newUser);
+        booking.setStart(LocalDateTime.now());
+        booking.setEnd(LocalDateTime.now());
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(userRepository.findById(booking.getBooker().getId())).thenReturn(Optional.of(userEntityRequestor));
+
+
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.createBooking(booking));
     }
 }

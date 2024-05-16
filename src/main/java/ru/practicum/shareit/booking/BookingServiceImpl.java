@@ -238,6 +238,13 @@ public class BookingServiceImpl implements BookingService {
             throw new DataNotFoundException("букер е может быть овнером");
         }
 
+        if (booking.getStart() == null) {
+            throw new ValidationException("Start date cannot be null");
+        }
+        if (booking.getEnd() == null) {
+            throw new ValidationException("End date cannot be null");
+        }
+
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("End - дата окончания не может быть в прошлом");
         }
@@ -246,12 +253,6 @@ public class BookingServiceImpl implements BookingService {
         }
         if (booking.getStart().isEqual(booking.getEnd())) {
             throw new ValidationException("Start date cannot be equal to end date");
-        }
-        if (booking.getStart() == null) {
-            throw new ValidationException("Start date cannot be null");
-        }
-        if (booking.getEnd() == null) {
-            throw new ValidationException("End date cannot be null");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Start date cannot be in the past");
