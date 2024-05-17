@@ -112,7 +112,7 @@ public class UserControllerTest {
         UserDto user2 = new UserDto();
         user2.setId(2L);
         user2.setName("Jane Doe");
-        user2.setEmail("jane.doe@example.com");
+        user2.setEmail("jane.doe@example1.com");
 
         when(userService.getAllUsers()).thenReturn(Arrays.asList(user1, user2));
 

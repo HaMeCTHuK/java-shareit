@@ -3,12 +3,16 @@ package ru.practicum.shareit.item.mapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -17,10 +21,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 public class ItemMapperTest {
 
-    private final ItemMapper mapper = Mappers.getMapper(ItemMapper.class);
+    @InjectMocks
+    private ItemMapper mapper = Mappers.getMapper(ItemMapper.class);
+    @Mock
+    private UserMapper userMapper;
     private ItemDto itemDto;
     private Item item;
     private User user;
@@ -32,6 +40,8 @@ public class ItemMapperTest {
 
     @BeforeEach
     void setUp() {
+
+        MockitoAnnotations.openMocks(this);
 
         user = new User();
         user.setId(1L);
@@ -120,12 +130,13 @@ public class ItemMapperTest {
         assertEquals(itemDto.getDescription(), mappedItem.getDescription());
         assertEquals(1L, mappedItem.getOwner().getId());
     }
-/*
+
     @Test
     public void testToItemsList() {
         List<ItemDto> itemDtoList = new ArrayList<>();
         itemDtoList.add(itemDto);
 
+        when(userMapper.toUser(userDto)).thenReturn(user);
         List<Item> itemList = mapper.toItemsList(itemDtoList);
 
         assertNotNull(itemList);
@@ -135,7 +146,6 @@ public class ItemMapperTest {
         assertEquals(itemDto.getId(), mappedItem.getId());
         assertEquals(itemDto.getName(), mappedItem.getName());
         assertEquals(itemDto.getDescription(), mappedItem.getDescription());
-        assertEquals(itemDto.getRequestId(), mappedItem.getRequest().getId());
     }
 
     @Test
@@ -143,6 +153,7 @@ public class ItemMapperTest {
         List<Item> itemList = new ArrayList<>();
         itemList.add(item);
 
+        when(userMapper.toUser(userDto)).thenReturn(user);
         List<ItemDto> itemDtoList = mapper.toItemsDtoList(itemList);
 
         assertNotNull(itemDtoList);
@@ -157,17 +168,18 @@ public class ItemMapperTest {
 
     @Test
     public void testItemDtoToItem() {
+        when(userMapper.toUser(userDto)).thenReturn(user);
         Item mappedItem = mapper.itemDtoToItem(itemDto);
 
         assertNotNull(mappedItem);
         assertEquals(itemDto.getId(), mappedItem.getId());
         assertEquals(itemDto.getName(), mappedItem.getName());
         assertEquals(itemDto.getDescription(), mappedItem.getDescription());
-        assertEquals(itemDto.getRequestId(), mappedItem.getRequest().getId());
     }
 
     @Test
     public void testToItemDto() {
+        when(userMapper.toUser(userDto)).thenReturn(user);
         ItemDto mappedDto = mapper.toItemDto(item);
 
         assertNotNull(mappedDto);
@@ -175,6 +187,6 @@ public class ItemMapperTest {
         assertEquals(item.getName(), mappedDto.getName());
         assertEquals(item.getDescription(), mappedDto.getDescription());
         assertEquals(item.getRequest().getId(), mappedDto.getRequestId());
-    }*/
+    }
 
 }

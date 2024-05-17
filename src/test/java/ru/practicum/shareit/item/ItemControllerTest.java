@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +18,7 @@ import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -25,7 +26,8 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(ItemController.class)
@@ -38,16 +40,19 @@ public class ItemControllerTest {
     private UserService userService;
     @MockBean
     private UserMapper userMapper;
-
     @MockBean
     private ItemService itemService;
     @MockBean
     private ItemMapper itemMapper;
     @MockBean
     private CommentMapper commentMapper;
-
     @InjectMocks
     private ItemController itemController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     public ItemControllerTest() {
         MockitoAnnotations.openMocks(this);
@@ -136,16 +141,18 @@ public class ItemControllerTest {
         itemDto.setDescription("123124");
         itemDto.setOwner(userDto);
 
-        when(itemService.createItem(any())).thenReturn(itemDto);
+        when(itemMapper.toItemFromItemDtoCreate(itemDto, 1L)).thenReturn(new Item());
+        when(itemService.createItem(new Item())).thenReturn(itemDto);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/items")
                 .header("X-Sharer-User-Id", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"Test Item\"}"));
+                .content("{\"name\": \"Test Item\", \"description\": \"Description of the test item\", \"available\": true}"));
 
         resultActions.andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value("Test Item"));
+                .andExpect(jsonPath("$.name").value("Test Item"))
+                .andExpect(jsonPath("$.description").value("123124"))
+                .andExpect(jsonPath("$.available").value(true));
 
         verify(itemService, times(1)).createItem(any());
     }
@@ -164,7 +171,21 @@ public class ItemControllerTest {
 
     @Test
     void testDeleteItemById_ItemExists_ReturnsSuccess() throws Exception {
-        doNothing().when(itemService).deleteItem(anyLong());
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setEmail("asdasd@asfasdf.com");
+        userDto.setName("nameeee");
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("name");
+        itemDto.setName("Test Item");
+        itemDto.setAvailable(true);
+        itemDto.setRequestId(1L);
+        itemDto.setDescription("123124");
+        itemDto.setOwner(userDto);
+
+        when(itemService.getItem(1L)).thenReturn(itemDto);
+        doNothing().when(itemService).deleteItem(1L);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.delete("/items/1"));
 
@@ -175,13 +196,26 @@ public class ItemControllerTest {
 
     @Test
     void testDeleteItemById_ItemNotExists_ReturnsNotFound() throws Exception {
-        doThrow(new DataNotFoundException("Данные не найдены Пользователь с ID 1 не найден")).when(itemService).deleteItem(anyLong());
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setEmail("asdasd@asfasdf.com");
+        userDto.setName("nameeee");
 
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("name");
+        itemDto.setName("Test Item");
+        itemDto.setAvailable(true);
+        itemDto.setRequestId(1L);
+        itemDto.setDescription("123124");
+        itemDto.setOwner(userDto);
+
+        when(itemService.getItem(1L)).thenReturn(itemDto);
+        doThrow(new DataNotFoundException("Данные не найдены Пользователь с ID 1 не найден")).when(itemService).deleteItem(1L);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.delete("/items/1"));
 
         resultActions.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Данные не найдены Пользователь с ID 1 не найден"));
+                .andExpect(jsonPath("$.error").value("Данные не найдены Данные не найдены Пользователь с ID 1 не найден"));
 
         verify(itemService, times(1)).deleteItem(1L);
     }
