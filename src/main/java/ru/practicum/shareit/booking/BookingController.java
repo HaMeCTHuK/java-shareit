@@ -15,6 +15,8 @@ import ru.practicum.shareit.common.FromSizeRequest;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.common.Constants.X_SHARER_USER_ID;
+
 /**
  * TODO Sprint add-bookings.
  */
@@ -29,24 +31,24 @@ public class BookingController {
     private final BookingMapper bookingMapper;
 
     @PostMapping
-    public BookingDto createBooking(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingDtoCreate bookingDtoCreate) {
+    public BookingDto createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId, @Valid @RequestBody BookingDtoCreate bookingDtoCreate) {
         Booking booking = bookingMapper.toBookingFromBookingDtoCreate(bookingDtoCreate, userId);
         log.info("Пытаемся создать booking: {}", booking);
         return bookingService.createBooking(booking);
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDto getBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                  @PathVariable Long bookingId) {
         log.info("Получаем объект бронирования по id: {}", bookingId);
         return bookingService.getBooking(bookingId, userId);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> getOwnerBookings(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                              @RequestParam(required = false, defaultValue = "ALL") String state,
-                                             @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                             @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                             @RequestParam(defaultValue = "0") Integer from,
+                                             @RequestParam(defaultValue = "10") Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем бронирования пользователя с id: {}, и статусом {}", userId, state);
@@ -54,10 +56,10 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> getAllUserBookings(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                                @RequestParam(required = false, defaultValue = "ALL") String state,
-                                               @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                               @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                               @RequestParam(defaultValue = "0") Integer from,
+                                               @RequestParam(defaultValue = "10") Integer size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         final Pageable pageable = FromSizeRequest.of(from, size, sort);
         log.info("Получаем все бронирования пользователя с id: {}, и статусом {}", userId, state);
@@ -65,7 +67,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto updateBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDto updateBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                     @PathVariable Long bookingId,
                                     @RequestParam Boolean approved) {
         log.info("Пытаемся обновить бронирование с id: {}", bookingId);

@@ -19,9 +19,9 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
     List<ItemEntity> search(@Param("text") String text);
 
     @Query("select ie from ItemEntity ie where ie.request.id in (:itemRequestsIds)")
-    List<ItemEntity> findAllByRequestIds(List<Long> itemRequestsIds);
+    List<ItemEntity> findAllByRequestIds(@Param("itemRequestsIds") List<Long> itemRequestsIds);
 
-    @Query("select ie from ItemEntity ie where ie.request.id in (:itemRequestsId)")
-    List<ItemEntity> findAllByRequestId(Long itemRequestsId);
+    @Query("select ie from ItemEntity ie where ie.request.id = :itemRequestsId")
+    List<ItemEntity> findAllByRequestId(@Param("itemRequestsId") Long itemRequestsId);
 
 }

@@ -24,6 +24,9 @@ public class FromSizeRequest extends PageRequest {
         if (from < 0) {
             throw new ValidationException("Данные from должны быть >= 0");
         }
+        if (size <= 0) {
+            throw new ValidationException("Размер страницы должен быть больше 0");
+        }
         return new FromSizeRequest(from, size, sort);
     }
 }
