@@ -26,7 +26,7 @@ public class ItemDto {
     @NotNull
     private Boolean available;
     private UserDto owner;
-    //* private ItemRequest request;  //Для следующего спринта оставил
+    private Long requestId;
     private Item.ItemBooking lastBooking;
     private Item.ItemBooking nextBooking;
     private List<Item.ItemComment> comments;

@@ -13,15 +13,12 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
+import static ru.practicum.shareit.common.Constants.X_SHARER_USER_ID;
 
 @Slf4j
 @RestController
@@ -34,18 +31,17 @@ public class ItemController {
     @Autowired
     private final UserService userService;
     private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto createItem(@RequestHeader(X_SHARER_USER_ID) Long userId, @Valid @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItemFromItemDtoCreate(itemDto, userId);
         log.info("Пытаемся добавить item: {}", item);
         return itemService.createItem(item);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto updateItem(@RequestHeader(X_SHARER_USER_ID) Long userId,
                               @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
          UserDto userDto = userService.getUser(userId);
         itemDto.setId(itemId);
@@ -61,7 +57,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto getItemWithUserId(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                      @PathVariable Long itemId) {
         log.info("Получаем объект по id: {}", itemId);
         Item item = itemService.getItemWithUserId(itemId, userId);
@@ -80,7 +76,7 @@ public class ItemController {
 
     @ResponseBody
     @GetMapping
-    public List<ItemDto> getAllItemsWithUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getAllItemsWithUserId(@RequestHeader(X_SHARER_USER_ID) Long userId) {
         List<Item> allItemsDtoWithUserId = itemService.getAllItemsWithUserId(userId);
         List<ItemDto> allItemsWithUserId = itemMapper.toItemsDtoList(allItemsDtoWithUserId);
         log.info("Получаем items с пользователем ID: {}", userId);
@@ -88,7 +84,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemsByText(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text) {
+    public List<ItemDto> searchItemsByText(@RequestHeader(X_SHARER_USER_ID) Long userId, @RequestParam String text) {
         log.info("Вызван метод searchItemsByQuery - поиск items с text(description) " + text + " c userId " + userId);
         if (text.isEmpty()) {
             return new ArrayList<>();
@@ -98,7 +94,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@PathVariable Long itemId,
-                             @RequestHeader("X-Sharer-User-Id") Long userId,
+                             @RequestHeader(X_SHARER_USER_ID) Long userId,
                              @Valid @RequestBody CommentDto commentDto) {
         log.info("Вызван метод createComment - поиск items с id " + itemId + " c userId " + userId);
         return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));

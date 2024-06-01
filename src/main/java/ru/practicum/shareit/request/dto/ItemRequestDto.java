@@ -4,13 +4,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
-
-/**
- * TODO Sprint add-item-requests.
- */
+import java.util.List;
 
 @Data
 @SuperBuilder
@@ -19,8 +17,10 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
 
     private Long id;  //уникальный идентификатор запроса;
+    @NotEmpty
     private String description;  //текст запроса, содержащий описание требуемой вещи;
-    private User requestor;  //пользователь, создавший запрос;
+    private UserDto requestor;  //пользователь, создавший запрос;
     private LocalDateTime created;  //дата и время создания запроса.
+    private List<ItemResponseOnRequestDto> items;
 
 }

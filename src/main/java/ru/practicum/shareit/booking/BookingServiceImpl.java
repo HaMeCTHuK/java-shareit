@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -93,136 +94,136 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status) {
+    public List<BookingDto> findAllByOwnerItemsAndStatus(Long userId, BookingStatus status, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
         if (status.equals(BookingStatus.ALL)) {
-            List<BookingEntity> recivedList = bookingRepository.findAllByItemOwnerOrderByIdDesc(owner);
+            List<BookingEntity> recivedList = bookingRepository.findAllByItemOwnerOrderByIdDesc(owner, pageable);
             return bookingMapper.toBookingDtoList(recivedList);
         }
 
         if (status == BookingStatus.FUTURE) {
-            List<BookingEntity> recivedList = bookingRepository.findFutureByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+            List<BookingEntity> recivedList = bookingRepository.findFutureByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable);
             return bookingMapper.toBookingDtoList(recivedList);
         }
 
-        List<BookingEntity> recivedList = bookingRepository.findAllByOwnerItemsAndStatus(owner, status);
+        List<BookingEntity> recivedList = bookingRepository.findAllByOwnerItemsAndStatus(owner, status, pageable);
 
         return bookingMapper.toBookingDtoList(recivedList);
     }
 
     @Override
-    public List<BookingDto> getUserBookings(Long userId, BookingStatus status) {
+    public List<BookingDto> getUserBookings(Long userId, BookingStatus status, Pageable pageable) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
         if (status.equals(BookingStatus.ALL)) {
-            List<BookingEntity> userBookings =  bookingRepository.findAllByBookerIdOrderByIdDesc(userId);
+            List<BookingEntity> userBookings =  bookingRepository.findAllByBookerIdOrderByIdDesc(userId, pageable);
             return bookingMapper.toBookingDtoList(userBookings);
         }
 
         if (status == BookingStatus.FUTURE) {
-            List<BookingEntity> userBookings = bookingRepository.findFutureByBooker(user, Timestamp.valueOf(LocalDateTime.now()));
+            List<BookingEntity> userBookings = bookingRepository.findFutureByBooker(user, Timestamp.valueOf(LocalDateTime.now()), pageable);
             return bookingMapper.toBookingDtoList(userBookings);
         }
 
-        List<BookingEntity> userBookings = bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userId, status);
+        List<BookingEntity> userBookings = bookingRepository.findAllByBookerIdAndStatusSortedByIdDesc(userId, status, pageable);
 
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
     @Override
-    public List<BookingDto> findAllByOwner(Long userId) {
+    public List<BookingDto> findAllByOwner(Long userId, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
-        List<BookingEntity> bookingList = bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL);
+        List<BookingEntity> bookingList = bookingRepository.findAllByOwnerItemsAndStatus(owner, BookingStatus.ALL, pageable);
 
         return bookingMapper.toBookingDtoList(bookingList);
     }
 
     @Override
-    public List<BookingDto> findCurrentByOwnerItems(Long userId) {
+    public List<BookingDto> findCurrentByOwnerItems(Long userId, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
-        List<BookingEntity> userBookings = bookingRepository.findCurrentByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+        List<BookingEntity> userBookings = bookingRepository.findCurrentByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable);
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
     @Override
-    public List<BookingDto> findPastByOwnerItems(Long userId) {
+    public List<BookingDto> findPastByOwnerItems(Long userId, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
-        List<BookingEntity> userBookings = bookingRepository.findPastByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()));
+        List<BookingEntity> userBookings = bookingRepository.findPastByOwnerItems(owner, Timestamp.valueOf(LocalDateTime.now()), pageable);
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
     @Override
-    public List<BookingDto> findCurrentByBooker(Long userId) {
+    public List<BookingDto> findCurrentByBooker(Long userId, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
-        List<BookingEntity> userBookings = bookingRepository.findCurrentByBooker(owner, Timestamp.valueOf(LocalDateTime.now()));
+        List<BookingEntity> userBookings = bookingRepository.findCurrentByBooker(owner, Timestamp.valueOf(LocalDateTime.now()), pageable);
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
     @Override
-    public List<BookingDto> findPastByBooker(Long userId) {
+    public List<BookingDto> findPastByBooker(Long userId, Pageable pageable) {
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
-        List<BookingEntity> userBookings = bookingRepository.findPastByBooker(owner, Timestamp.valueOf(LocalDateTime.now()));
+        List<BookingEntity> userBookings = bookingRepository.findPastByBooker(owner, Timestamp.valueOf(LocalDateTime.now()), pageable);
         return bookingMapper.toBookingDtoList(userBookings);
     }
 
-    public List<BookingDto> getOwnerBookingsByState(Long userId, String state) {
+    public List<BookingDto> getOwnerBookingsByState(Long userId, String state, Pageable pageable) {
         BookingStatus status;
         switch (state) {
         case "CURRENT":
-            return findCurrentByOwnerItems(userId);
+            return findCurrentByOwnerItems(userId, pageable);
         case "PAST":
-            return findPastByOwnerItems(userId);
+            return findPastByOwnerItems(userId, pageable);
         case "ALL":
             status = BookingStatus.ALL;
-            return findAllByOwnerItemsAndStatus(userId, status);
+            return findAllByOwnerItemsAndStatus(userId, status, pageable);
         case "FUTURE":
             status = BookingStatus.FUTURE;
-            return findAllByOwnerItemsAndStatus(userId, status);
+            return findAllByOwnerItemsAndStatus(userId, status, pageable);
         case "WAITING":
             status = BookingStatus.WAITING;
-            return findAllByOwnerItemsAndStatus(userId, status);
+            return findAllByOwnerItemsAndStatus(userId, status, pageable);
         case "REJECTED":
             status = BookingStatus.REJECTED;
-            return findAllByOwnerItemsAndStatus(userId, status);
+            return findAllByOwnerItemsAndStatus(userId, status, pageable);
         case "CANCELED":
             status = BookingStatus.CANCELED;
-            return findAllByOwnerItemsAndStatus(userId, status);
+            return findAllByOwnerItemsAndStatus(userId, status, pageable);
         default:
             throw new ValidationException("Unknown state: " + state);
         }
     }
 
     @Override
-    public List<BookingDto> getAllUserBookingsByState(Long userId, String state) {
+    public List<BookingDto> getAllUserBookingsByState(Long userId, String state, Pageable pageable) {
         BookingStatus status;
         switch (state) {
         case "CURRENT":
-            return findCurrentByBooker(userId);
+            return findCurrentByBooker(userId, pageable);
         case "PAST":
-            return findPastByBooker(userId);
+            return findPastByBooker(userId, pageable);
         case "ALL":
             status = BookingStatus.ALL;
-            return getUserBookings(userId, status);
+            return getUserBookings(userId, status, pageable);
         case "FUTURE":
             status = BookingStatus.FUTURE;
-            return getUserBookings(userId, status);
+            return getUserBookings(userId, status, pageable);
         case "WAITING":
             status = BookingStatus.WAITING;
-            return getUserBookings(userId, status);
+            return getUserBookings(userId, status, pageable);
         case "REJECTED":
             status = BookingStatus.REJECTED;
-            return getUserBookings(userId, status);
+            return getUserBookings(userId, status, pageable);
         case "CANCELED":
             status = BookingStatus.CANCELED;
-            return getUserBookings(userId, status);
+            return getUserBookings(userId, status, pageable);
         default:
             throw new ValidationException("Unknown state: " + state);
         }
@@ -237,6 +238,13 @@ public class BookingServiceImpl implements BookingService {
             throw new DataNotFoundException("букер е может быть овнером");
         }
 
+        if (booking.getStart() == null) {
+            throw new ValidationException("Start date cannot be null");
+        }
+        if (booking.getEnd() == null) {
+            throw new ValidationException("End date cannot be null");
+        }
+
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("End - дата окончания не может быть в прошлом");
         }
@@ -245,12 +253,6 @@ public class BookingServiceImpl implements BookingService {
         }
         if (booking.getStart().isEqual(booking.getEnd())) {
             throw new ValidationException("Start date cannot be equal to end date");
-        }
-        if (booking.getStart() == null) {
-            throw new ValidationException("Start date cannot be null");
-        }
-        if (booking.getEnd() == null) {
-            throw new ValidationException("End date cannot be null");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Start date cannot be in the past");

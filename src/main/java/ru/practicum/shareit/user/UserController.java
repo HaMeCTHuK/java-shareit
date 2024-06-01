@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -14,9 +13,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
@@ -28,7 +24,6 @@ public class UserController {
 
     @PostMapping
     public UserDto createUser(@RequestBody @Valid UserDto userDto) {
-        //validateUser(userDto);
         log.info("Пытаемся добавить пользователя: {}", userDto);
         User user = userMapper.toUser(userDto);
         return userService.createUser(user);
@@ -75,15 +70,4 @@ public class UserController {
         userService.deleteUser(userId);
     }
 
-    public void validateUser(UserDto userDto) {
-        if (userDto.getEmail() == null) {
-            throw new ValidationException("Не корректные данные объекта");
-        }
-
-        for (UserDto addedUser : userService.getAllUsers()) {
-            if (addedUser.getEmail().equals(userDto.getEmail())) {
-                throw new DataAlreadyExistException("Пользователь уже сужествует");
-            }
-        }
-    }
 }

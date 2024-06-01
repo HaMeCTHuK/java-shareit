@@ -4,9 +4,11 @@ import org.mapstruct.*;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemResponseOnRequestDto;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -16,11 +18,11 @@ public interface ItemRepositoryMapper {
     @Mapping(target = "nextBooking", ignore = true)
     Item toItem(ItemEntity itemEntity);
 
-    /*@Mapping(target = "request.created", ignore = true)*/  //Для следующего спринта оставил
+    @Mapping(target = "request", ignore = true)
     ItemEntity toEntity(Item item);
 
     @Mapping(target = "id", ignore = true)
-    /*@Mapping(target = "request.created", ignore = true)*/  //Для следующего спринта оставил
+    @Mapping(target = "request.created", ignore = true)
     void updateEntity(Item item, @MappingTarget ItemEntity itemEntity);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toLocalDateTime")
@@ -38,5 +40,15 @@ public interface ItemRepositoryMapper {
     default Timestamp toTimeStamp(LocalDateTime localDateTime) {
         return Timestamp.valueOf(localDateTime);
     }
+
+    @Mapping(target = "requestId", source = "request.id")
+    ItemResponseOnRequestDto itemEntityToItemResponseOnRequestDto(ItemEntity itemEntity);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "ItemResponseOnRequestDto.requestId", source = "ItemEntity.request.id")
+    @Mapping(target = "available", source = "available")
+    List<ItemResponseOnRequestDto> toItemsResponseListFromEntity(List<ItemEntity> itemEntityList);
 }
 

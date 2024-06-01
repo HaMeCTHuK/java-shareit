@@ -22,14 +22,12 @@ public interface BookingMapper {
     Booking toBooking(BookingEntity bookingEntity);
 
     @Mapping(target = "booker.id", source = "userId")
-    Booking toBookingFromBookingDtoCreate(BookingDto bookingDtoCreate, Long userId);
-
-    @Mapping(target = "booker.id", source = "userId")
     @Mapping(target = "item.id", source = "bookingDtoCreate.itemId")
     Booking toBookingFromBookingDtoCreate(BookingDtoCreate bookingDtoCreate, Long userId);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toTimeStamp")
     @Mapping(target = "end", source = "end", qualifiedByName = "toTimeStamp")
+    @Mapping(target = "item.request.created", source = "item.request.created", qualifiedByName = "toTimeStamp")
     BookingEntity toEntity(Booking booking);
 
     @Mapping(target = "start", source = "start", qualifiedByName = "toLocalDateTime")
