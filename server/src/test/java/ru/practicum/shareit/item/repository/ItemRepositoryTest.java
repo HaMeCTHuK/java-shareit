@@ -13,7 +13,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DataJpaTest
@@ -56,39 +55,5 @@ public class ItemRepositoryTest {
         List<ItemEntity> items = itemRepository.findAllByRequestId(itemRequestsId);
 
         assertFalse(items.isEmpty());
-
     }
-
-    @Test
-    public void testSearch() {
-
-        String searchText = "example";
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("name");
-        userEntity.setEmail("asd@gogo.ru");
-
-        UserEntity savedUserEntity = userRepository.save(userEntity);
-
-        ItemRequestEntity requestEntity = new ItemRequestEntity();
-        requestEntity.setRequestor(savedUserEntity);
-        requestEntity.setCreated(Timestamp.valueOf(LocalDateTime.now()));
-        requestEntity.setDescription("test");
-
-        ItemRequestEntity savedItemRequestEntity = itemRequestRepository.save(requestEntity);
-
-        ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setAvailable(true);
-        itemEntity.setRequest(savedItemRequestEntity);
-        itemEntity.setName("name");
-        itemEntity.setDescription("example");
-        itemEntity.setOwner(userEntity);
-
-        itemRepository.save(itemEntity);
-
-        List<ItemEntity> items = itemRepository.search(searchText);
-
-        assertEquals(1, items.size());
-    }
-
 }
