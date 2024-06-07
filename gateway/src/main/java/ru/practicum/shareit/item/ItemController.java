@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 import javax.validation.Valid;
+import static ru.practicum.shareit.common.Constants.X_SHARER_USER_ID;
 
 @RestController
 @RequestMapping("/items")
@@ -53,13 +54,15 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestParam String text,
-                                @RequestParam(defaultValue = "0") int from,
-                                @RequestParam(defaultValue = "10") int size) {
-        log.info("Пришел /GET запрос на поиск объекта {}", text);
-        ResponseEntity<Object> items = itemClient.search(text, from, size);
+                                         @RequestParam(defaultValue = "0") int from,
+                                         @RequestParam(defaultValue = "10") int size,
+                                         @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        log.info("Пришел /GET запрос на поиск объекта {} с userId {}", text, userId);
+        ResponseEntity<Object> items = itemClient.search(userId, text, from, size);
         log.info("Ответ отправлен {}", items);
         return items;
     }
+
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addComment(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId,
