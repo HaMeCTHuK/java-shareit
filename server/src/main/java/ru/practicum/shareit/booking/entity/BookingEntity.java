@@ -38,6 +38,7 @@ public class BookingEntity implements Serializable {
     @JoinColumn(name = "booker_id", nullable = false)
     private UserEntity booker;  //пользователь, который осуществляет бронирование;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private BookingStatus status;  //статус бронирования.
 
