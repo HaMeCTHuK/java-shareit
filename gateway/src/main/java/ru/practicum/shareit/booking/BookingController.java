@@ -14,6 +14,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.common.Constants.X_SHARER_USER_ID;
+
 @Controller
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -23,10 +25,10 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     @GetMapping
-    public ResponseEntity<Object> getAllByBooker(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getAllByBooker(@RequestHeader(X_SHARER_USER_ID) long userId,
                                               @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                              @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Positive @RequestParam(defaultValue = "10") Integer size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Пришел /GET запрос на получение списка всех бронирований для пользователя с id {}, и с параметром {}",
@@ -37,10 +39,10 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getAllByOwner(@RequestHeader(X_SHARER_USER_ID) long userId,
                                                 @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                                @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                @Positive @RequestParam(defaultValue = "10") Integer size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Пришел /GET запрос на получение списка всех бронирований для владельца с id {}, и с параметром {}",
@@ -51,7 +53,7 @@ public class BookingController {
     }
 
         @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> approve(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> approve(@PathVariable Long bookingId, @RequestHeader(X_SHARER_USER_ID) Long userId,
                                       @RequestParam Boolean approved) {
         log.info("Пришел /POST запрос на принятие или отклонение аренды от пользователя с id {} к предмету с id {}",
                 userId, bookingId);
@@ -62,7 +64,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody BookingRequestDto bookingDto,
-                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                           @RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Пришел POST запрос на добавление новой аренды {} от пользователя с id {}", bookingDto, userId);
         ResponseEntity<Object> booking = bookingClient.create(userId, bookingDto);
         log.info("Ответ отправлен {}", booking);
@@ -70,7 +72,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getById(@RequestHeader(X_SHARER_USER_ID) long userId,
                                              @PathVariable Long bookingId) {
         log.info("Пришел /GET запрос на получение данных об аренде с id {} от пользователя {}", bookingId, userId);
         ResponseEntity<Object> booking = bookingClient.getById(userId, bookingId);
