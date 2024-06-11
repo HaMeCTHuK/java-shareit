@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.common.FromSizeRequest;
 
-import javax.validation.Valid;
 import java.util.List;
 
 import static ru.practicum.shareit.common.Constants.X_SHARER_USER_ID;
@@ -31,7 +30,7 @@ public class BookingController {
     private final BookingMapper bookingMapper;
 
     @PostMapping
-    public BookingDto createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId, @Valid @RequestBody BookingDtoCreate bookingDtoCreate) {
+    public BookingDto createBooking(@RequestHeader(X_SHARER_USER_ID) Long userId, @RequestBody BookingDtoCreate bookingDtoCreate) {
         Booking booking = bookingMapper.toBookingFromBookingDtoCreate(bookingDtoCreate, userId);
         log.info("Пытаемся создать booking: {}", booking);
         return bookingService.createBooking(booking);

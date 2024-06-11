@@ -3,12 +3,13 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 
 import javax.validation.Valid;
 
-@RestController
+@Controller
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Slf4j
@@ -40,7 +41,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> update(@RequestBody UserRequestDto user, @PathVariable Long id) {
+    public ResponseEntity<Object> update(@Valid @RequestBody UserRequestDto user, @PathVariable Long id) {
         log.info("Пришел /PATCH запрос на изменение данных пользователя с id {}", id);
         ResponseEntity<Object> updatedUser = userClient.update(id, user);
         log.info("Ответ отправлен {}", updatedUser);

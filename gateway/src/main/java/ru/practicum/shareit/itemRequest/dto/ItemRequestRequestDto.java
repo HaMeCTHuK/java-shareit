@@ -13,5 +13,5 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class ItemRequestRequestDto {
     @NotBlank
-    String description;
+    private String description;
 }

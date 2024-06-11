@@ -14,7 +14,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader(X_SHARER_USER_ID) Long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto createItem(@RequestHeader(X_SHARER_USER_ID) Long userId, @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItemFromItemDtoCreate(itemDto, userId);
         log.info("Пытаемся добавить item: {}", item);
         return itemService.createItem(item);
@@ -94,8 +93,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@PathVariable Long itemId,
-                             @RequestHeader(X_SHARER_USER_ID) Long userId,
-                             @Valid @RequestBody CommentDto commentDto) {
+                             @RequestHeader(X_SHARER_USER_ID) Long userId, @RequestBody CommentDto commentDto) {
         log.info("Вызван метод createComment - поиск items с id " + itemId + " c userId " + userId);
         return itemService.addComment(commentMapper.toCommentWithIds(commentDto, itemId, userId));
     }
