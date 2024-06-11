@@ -6,6 +6,8 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,8 +18,12 @@ import java.util.List;
 public class ItemDto {
 
     private Long id;
+    @NotNull
+    @NotEmpty
     private String name;
+    @NotNull
     private String description;
+    @NotNull
     private Boolean available;
     private UserDto owner;
     private Long requestId;
