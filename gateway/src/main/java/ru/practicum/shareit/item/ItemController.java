@@ -48,7 +48,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@Valid @RequestBody ItemRequestDto itemDto, @PathVariable Long itemId,
+    public ResponseEntity<Object> update(@RequestBody ItemRequestDto itemDto, @PathVariable Long itemId,
                           @RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Пришел /PATCH запрос на обновление объекта на {}, с id {}, и id {} пользователя", itemDto, itemId, userId);
         ResponseEntity<Object> item = itemClient.update(itemId, userId, itemDto);

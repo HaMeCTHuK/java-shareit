@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> update(@Valid @RequestBody UserRequestDto user, @PathVariable Long id) {
+    public ResponseEntity<Object> update(@RequestBody UserRequestDto user, @PathVariable Long id) {
         log.info("Пришел /PATCH запрос на изменение данных пользователя с id {}", id);
         ResponseEntity<Object> updatedUser = userClient.update(id, user);
         log.info("Ответ отправлен {}", updatedUser);
